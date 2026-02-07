@@ -68,9 +68,16 @@
 
 
 
-    <form id="form" action="">
-  <input id="input" autocomplete="off" placeholder="Type a message..." />
+<form id="form" action="">
 
+  <!-- Media Button -->
+  <button type="button" id="media-btn" title="Send photo">＋</button>
+
+  <!-- Hidden Image Input -->
+  <input type="file" id="image-input" accept="image/*" hidden />
+
+  <!-- Text Input -->
+  <input id="input" autocomplete="off" placeholder="Type a message..." />
 
   <!-- Mic Button Wrapper -->
   <div style="position: relative; display:inline-block;">
@@ -79,8 +86,24 @@
       <!-- Slide-To-Cancel -->
       <div id="slideToCancel" class="slide-cancel">← Slide to cancel</div>
   </div>
+
 </form>
 
+
+<!-- Image Preview Overlay -->
+<div id="image-preview" class="image-preview hidden">
+  <img id="preview-img" />
+  
+  <label class="view-once-toggle">
+    <input type="checkbox" id="view-once" />
+    View once
+  </label>
+
+  <div class="preview-actions">
+    <button id="cancel-image">Cancel</button>
+    <button id="send-image">Send</button>
+  </div>
+</div>
 
 
   <!-- Effects Elements -->
@@ -111,6 +134,10 @@
       document.getElementById("username-prompt").style.display = "none";
     });
   </script>
+<div id="image-modal" class="image-modal hidden">
+  <span id="close-image">✕</span>
+  <img id="modal-image" />
+</div>
 
 </body>
 </html>

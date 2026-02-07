@@ -35,6 +35,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // Other
   const lightningContainer = document.getElementById("lightning-container");
   const flashOverlay = document.getElementById("flash-overlay");
+ // ===== Media Elements =====
+  const mediaBtn = document.getElementById("media-btn");
+  const imageInput = document.getElementById("image-input");
+  const imagePreview = document.getElementById("image-preview");
+  const previewImg = document.getElementById("preview-img");
+  const sendImageBtn = document.getElementById("send-image");
+  const cancelImageBtn = document.getElementById("cancel-image");
+  const viewOnceCheckbox = document.getElementById("view-once");
+  const imageModal = document.getElementById("image-modal");
+  const modalImage = document.getElementById("modal-image");
+  const closeImageBtn = document.getElementById("close-image");
+
 
   // State
   let username = "";
@@ -55,8 +67,30 @@ document.addEventListener("DOMContentLoaded", () => {
   let startX = 0;
   let isRecording = false;
   let canceled = false;
+  let selectedImageBuffer = null;
 
+/*Media deleting shit */
+function openImageModal(src) {
+  modalImage.src = src;
+  imageModal.classList.remove("hidden");
+}
 
+if (closeImageBtn) {
+  closeImageBtn.addEventListener("click", () => {
+    modalImage.src = "";
+    imageModal.classList.add("hidden");
+  });
+}
+
+// close on background click
+if (imageModal) {
+  imageModal.addEventListener("click", (e) => {
+    if (e.target === imageModal) {
+      modalImage.src = "";
+      imageModal.classList.add("hidden");
+    }
+  });
+}
   /* ==========================
      Music list (unchanged)
      ========================== */
@@ -102,7 +136,8 @@ document.addEventListener("DOMContentLoaded", () => {
     "https://files.catbox.moe/5504r6.mp3",
     "https://files.catbox.moe/9pw1ym.mp4",
     "https://files.catbox.moe/9nv0nw.mp3",
-    "https://files.catbox.moe/exa8zj.mp3"
+    "https://files.catbox.moe/exa8zj.mp3",
+    "https://files.catbox.moe/nxyai1.mp4"
   ];
 
   /* ==========================
@@ -180,10 +215,68 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     socket.emit("new user", username);
   };
+    /*Media: open file picker */
+  if (mediaBtn && imageInput) {
+    mediaBtn.addEventListener("click", () => {
+      imageInput.click();
+    });
+  }
 
-  /* ==========================
-     Append message (handles replies)
-     ========================== */
+  /* Media: image select & preview*/
+  if (imageInput) {
+    imageInput.addEventListener("change", () => {
+      const file = imageInput.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith("image/")) {
+        alert("Only images are allowed");
+        imageInput.value = "";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        selectedImageBuffer = reader.result;
+        previewImg.src = reader.result;
+        imagePreview.classList.remove("hidden");
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  /* Media: cancel image*/
+  if (cancelImageBtn) {
+    cancelImageBtn.addEventListener("click", () => {
+      imagePreview.classList.add("hidden");
+      previewImg.src = "";
+      imageInput.value = "";
+      selectedImageBuffer = null;
+      viewOnceCheckbox.checked = false;
+    });
+  }
+  /* Media: send image */
+  if (sendImageBtn) {
+    sendImageBtn.addEventListener("click", async () => {
+      if (!selectedImageBuffer) return;
+
+      const res = await fetch(selectedImageBuffer);
+      const buffer = await res.arrayBuffer();
+
+      socket.emit("send image", {
+        buffer,
+        viewOnce: viewOnceCheckbox.checked
+      });
+
+      // reset UI
+      imagePreview.classList.add("hidden");
+      previewImg.src = "";
+      imageInput.value = "";
+      selectedImageBuffer = null;
+      viewOnceCheckbox.checked = false;
+    });
+  }
+
+  /*Append message (handles replies) */
+
   function appendMessage(msgObj, type) {
     const li = document.createElement("li");
     li.classList.add(type);
@@ -302,6 +395,59 @@ socket.on("chat message", (msg) => {
     appendMessage(msg, "received");
   }
 });
+  /* Media: receive image notice */
+socket.on("new image", ({ mediaId, viewOnce }) => {
+  const li = document.createElement("li");
+  li.className = "received image-message";
+  li.dataset.mediaId = mediaId;
+  li.dataset.viewOnce = viewOnce ? "true" : "false";
+
+  // delete system compatibility
+  li.dataset.user = "Photo";
+  li.dataset.text = "image";
+  li.dataset.id = mediaId;
+  li.dataset.type = "image";
+
+  li.innerHTML = `
+    <strong>Photo:</strong> ${viewOnce ? "(view once)" : ""}
+    <br>
+    <button class="view-image-btn">View</button>
+  `;
+
+  li.querySelector(".view-image-btn").addEventListener("click", () => {
+    socket.emit("view image", mediaId);
+  });
+
+  messages.appendChild(li);
+  messages.scrollTop = messages.scrollHeight;
+});
+
+   /* Media: receive image data */
+socket.on("image data", ({ mediaId, buffer }) => {
+  const msg = document.querySelector(
+    `.image-message[data-media-id="${mediaId}"]`
+  );
+  if (!msg) return;
+
+  const blob = new Blob([buffer]);
+  const url = URL.createObjectURL(blob);
+
+  openImageModal(url);
+});
+
+
+socket.on("image expired", (mediaId) => {
+  const msg = document.querySelector(
+    `.image-message[data-media-id="${mediaId}"]`
+  );
+
+  if (!msg) return;
+
+  // WhatsApp-style behavior
+  msg.innerHTML = "<em>📷 Photo viewed</em>";
+  msg.classList.add("expired");
+});
+
 
 
 

@@ -20,6 +20,15 @@ app.get("/ping", (req, res) => {
 const connectedUsers = new Map();
 const rooms = new Map();
 let roomCounter = 1;
+// In-memory media store (NO DB)
+const mediaStore = new Map();
+/*
+  mediaId => {
+    buffer: Buffer,
+    viewOnce: boolean,
+    viewedBy: Set(socket.id)
+  }
+*/
 
 // Room helpers
 function createRoom() {
@@ -74,6 +83,53 @@ io.on("connection", (socket) => {
   socket.on("voice message", (msg) => {
     socket.broadcast.to(roomId).emit("voice message", msg);
   });
+  // Image message
+socket.on("send image", (data) => {
+  /*
+    data = {
+      buffer: ArrayBuffer,
+      viewOnce: boolean
+    }
+  */
+if (!data?.buffer) return;
+
+if (data.buffer.byteLength > 5 * 1024 * 1024) {
+  return; // reject images > 5MB
+}
+
+  const mediaId = `media-${Date.now()}-${Math.random()}`;
+
+  mediaStore.set(mediaId, {
+    buffer: Buffer.from(data.buffer),
+    viewOnce: data.viewOnce,
+    viewedBy: new Set()
+  });
+
+  // Notify receiver that an image exists
+  socket.broadcast.to(roomId).emit("new image", {
+    mediaId,
+    viewOnce: data.viewOnce
+  });
+});
+// View image
+socket.on("view image", (mediaId) => {
+  const media = mediaStore.get(mediaId);
+  if (!media) return;
+
+  if (media.viewOnce && media.viewedBy.has(socket.id)) return;
+
+  media.viewedBy.add(socket.id);
+
+  socket.emit("image data", {
+    mediaId,
+    buffer: media.buffer
+  });
+
+  if (media.viewOnce) {
+    mediaStore.delete(mediaId);
+    io.to(roomId).emit("image expired", mediaId);
+  }
+});
 
   // Typing indicators
   socket.on("typing", (user) => socket.to(roomId).emit("typing", user));
@@ -87,23 +143,26 @@ io.on("connection", (socket) => {
   socket.on("delete message", (data) => {
     io.to(roomId).emit("delete message", data);
   });
+ //Disconnect
+socket.on("disconnect", () => {
+  // Cleanup media viewed by disconnected user
+  for (const [id, media] of mediaStore.entries()) {
+    media.viewedBy.delete(socket.id);
+  }
 
-  // Disconnect
-  socket.on("disconnect", () => {
-    rooms.get(roomId)?.delete(socket.id);
-    connectedUsers.delete(socket.id);
+  rooms.get(roomId)?.delete(socket.id);
+  connectedUsers.delete(socket.id);
 
-    if (rooms.get(roomId)?.size === 0) {
-      rooms.delete(roomId);
-      console.log(`${roomId} deleted (empty)`);
-    } else {
-      io.to(roomId).emit("update users", getUsernamesInRoom(roomId));
-    }
-    console.log("User disconnected:", socket.id);
-  });
+  if (rooms.get(roomId)?.size === 0) {
+    rooms.delete(roomId);
+    console.log(`${roomId} deleted (empty)`);
+  } else {
+    io.to(roomId).emit("update users", getUsernamesInRoom(roomId));
+  }
 
-  socket.on("error", (err) => console.error("Socket error:", err));
+  console.log("User disconnected:", socket.id);
 });
+}); 
 
 // Config route
 app.get("/config", (req, res) => {
