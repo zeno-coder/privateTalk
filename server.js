@@ -88,6 +88,13 @@ socket.on("set wallpaper", (data) => {
     mime: data.mime
   });
 });
+socket.on("return bg", () => {
+  const username = connectedUsers.get(socket.id);
+  if (!isAdmin(username)) return;
+
+  // 🔥 Broadcast reset to room (NO STORAGE)
+  io.to(roomId).emit("reset wallpaper");
+});
 
 
   // Chat messages (NO DUPLICATE TO SENDER)

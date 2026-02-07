@@ -348,6 +348,14 @@ form.addEventListener("submit", (e) => {
   if (!input.value || !username) return;
 
   const text = input.value.trim();
+  // ADMIN COMMAND: return background
+if (text === "returnbg" && isAdminUser()) {
+  socket.emit("return bg");
+  input.value = "";
+  updateRecordBtn(); // restore mic icon
+  return; // ❌ DO NOT SEND MESSAGE
+}
+
 
   // *** FIXED: include an id and ts when sending a chat message ***
   const msg = {
@@ -469,7 +477,19 @@ socket.on("wallpaper updated", ({ buffer, mime }) => {
   // 🔐 TEMPORARY — browser-session only
   sessionStorage.setItem("customWallpaper", url);
 });
+//Reset wallpapers
+socket.on("reset wallpaper", () => {
+  // Clear custom wallpaper
+  sessionStorage.removeItem("customWallpaper");
 
+  if (!chatContainer) return;
+
+  // Reset to slideshow start
+  bgIndex = 0;
+  chatContainer.style.backgroundImage = `url('${bgImages[0]}')`;
+
+  // Slideshow resumes automatically
+});
 
 
 
