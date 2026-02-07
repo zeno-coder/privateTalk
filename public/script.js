@@ -355,6 +355,13 @@ if (text === "returnbg" && isAdminUser()) {
   updateRecordBtn(); // restore mic icon
   return; // ❌ DO NOT SEND MESSAGE
 }
+// ADMIN COMMAND: clear chat
+if (text === "cls" && isAdminUser()) {
+  socket.emit("clear chat");
+  input.value = "";
+  updateRecordBtn();
+  return; // ❌ do NOT send message
+}
 
 
   // *** FIXED: include an id and ts when sending a chat message ***
@@ -489,6 +496,17 @@ socket.on("reset wallpaper", () => {
   chatContainer.style.backgroundImage = `url('${bgImages[0]}')`;
 
   // Slideshow resumes automatically
+});
+//Clearchat();
+socket.on("clear chat", () => {
+  const items = document.querySelectorAll("#messages li");
+
+  items.forEach((li, index) => {
+    // stagger animation slightly for beauty ✨
+    setTimeout(() => {
+      animateDeleteMessage(li);
+    }, index * 25);
+  });
 });
 
 

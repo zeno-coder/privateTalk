@@ -95,6 +95,12 @@ socket.on("return bg", () => {
   // 🔥 Broadcast reset to room (NO STORAGE)
   io.to(roomId).emit("reset wallpaper");
 });
+socket.on("clear chat", () => {
+  const username = connectedUsers.get(socket.id);
+  if (!isAdmin(username)) return;
+
+  io.to(roomId).emit("clear chat");
+});
 
 
   // Chat messages (NO DUPLICATE TO SENDER)
