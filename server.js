@@ -53,6 +53,9 @@ function getUsernamesInRoom(roomId) {
   }
   return names;
 }
+function isAdmin(username) {
+  return ["thejus", "Thejus", "THEJUS"].includes(username);
+}
 
 // Socket.io logic
 io.on("connection", (socket) => {
@@ -73,6 +76,19 @@ io.on("connection", (socket) => {
     connectedUsers.set(socket.id, username);
     io.to(roomId).emit("update users", getUsernamesInRoom(roomId));
   });
+  // ===== Admin wallpaper upload =====
+socket.on("set wallpaper", (data) => {
+  const username = connectedUsers.get(socket.id);
+  if (!isAdmin(username)) return;
+
+  if (!data?.buffer || !data?.mime) return;
+
+  io.to(roomId).emit("wallpaper updated", {
+    buffer: data.buffer,
+    mime: data.mime
+  });
+});
+
 
   // Chat messages (NO DUPLICATE TO SENDER)
   socket.on("chat message", (msg) => {

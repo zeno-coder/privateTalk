@@ -91,6 +91,16 @@ if (imageModal) {
     }
   });
 }
+//Wallpaper NiggerS
+function applyCustomWallpaper(url) {
+  if (!chatContainer) return;
+
+  chatContainer.style.backgroundImage = `url('${url}')`;
+  chatContainer.style.backgroundSize = "cover";
+  chatContainer.style.backgroundPosition = "center";
+  chatContainer.style.backgroundRepeat = "no-repeat";
+}
+
   /* ==========================
      Music list (unchanged)
      ========================== */
@@ -448,6 +458,16 @@ socket.on("image expired", (mediaId) => {
   // WhatsApp-style behavior
   msg.innerHTML = "<em>📷 Photo viewed</em>";
   msg.classList.add("expired");
+});
+
+socket.on("wallpaper updated", ({ buffer, mime }) => {
+  const blob = new Blob([buffer], { type: mime });
+  const url = URL.createObjectURL(blob);
+
+  applyCustomWallpaper(url);
+
+  // 🔐 TEMPORARY — browser-session only
+  sessionStorage.setItem("customWallpaper", url);
 });
 
 
@@ -913,17 +933,52 @@ function updateIndicator() {
 
   let bgIndex = 0;
   const chatContainer = document.querySelector(".chat-container");
-  if (chatContainer) chatContainer.style.backgroundImage = `url('${bgImages[0]}')`;
-  function changeBackground() {
-    if (!chatContainer) return;
-    bgIndex = (bgIndex + 1) % bgImages.length;
-    chatContainer.style.setProperty("--bg-next", `url('${bgImages[bgIndex]}')`);
-    chatContainer.classList.add("fade-bg");
-    setTimeout(() => {
-      chatContainer.style.backgroundImage = `url('${bgImages[bgIndex]}')`;
-      chatContainer.classList.remove("fade-bg");
-    }, 1500);
+  const chatMain = document.querySelector(".chat-main");
+  const wallpaperInput = document.getElementById("wallpaper-input");
+  let wallpaperPressTimer = null;
+  document.addEventListener("DOMContentLoaded", () => {
+  const savedWallpaper = sessionStorage.getItem("customWallpaper");
+
+  if (savedWallpaper) {
+    applyCustomWallpaper(savedWallpaper);
   }
+  // else → slideshow runs automatically
+});
+
+  wallpaperInput.addEventListener("change", () => {
+  const file = wallpaperInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    socket.emit("set wallpaper", {
+      buffer: reader.result,
+      mime: file.type
+    });
+  };
+
+  reader.readAsArrayBuffer(file);
+});
+
+  if (chatContainer && !sessionStorage.getItem("customWallpaper")) {
+  chatContainer.style.backgroundImage = `url('${bgImages[0]}')`;
+}
+function changeBackground() {
+  if (!chatContainer) return;
+
+  // ⛔ Stop slideshow if custom wallpaper is active
+  if (sessionStorage.getItem("customWallpaper")) return;
+
+  bgIndex = (bgIndex + 1) % bgImages.length;
+  chatContainer.style.setProperty("--bg-next", `url('${bgImages[bgIndex]}')`);
+  chatContainer.classList.add("fade-bg");
+
+  setTimeout(() => {
+    chatContainer.style.backgroundImage = `url('${bgImages[bgIndex]}')`;
+    chatContainer.classList.remove("fade-bg");
+  }, 1500);
+}
+
   setInterval(changeBackground, 25000);
 
   /* ==========================
@@ -1108,6 +1163,50 @@ function updateIndicator() {
     container.appendChild(el);
     setTimeout(() => el.remove(), 2000);
   }
+  //ADMIN CHECK LOGIC
+  function isAdminUser() {
+  return ["thejus", "Thejus", "THEJUS"].includes(username);
+}
+/* ==========================
+   Admin Wallpaper: Triple Tap / Click
+   ========================== */
+
+let tapCount = 0;
+let tapTimer = null;
+const TAP_WINDOW = 600; // ms
+
+function handleAdminTripleTap() {
+  if (!isAdminUser()) return;
+
+  tapCount++;
+
+  if (tapCount === 1) {
+    tapTimer = setTimeout(() => {
+      tapCount = 0;
+      tapTimer = null;
+    }, TAP_WINDOW);
+  }
+
+  if (tapCount === 3) {
+    clearTimeout(tapTimer);
+    tapCount = 0;
+    tapTimer = null;
+
+    // ✅ User-initiated action (browser-safe)
+    wallpaperInput.click();
+  }
+}
+
+// Desktop
+if (chatMain) {
+  chatMain.addEventListener("click", handleAdminTripleTap);
+}
+
+// Mobile
+if (chatMain) {
+  chatMain.addEventListener("touchend", handleAdminTripleTap);
+}
+
   /* ==========================
      Finish DOMContentLoaded
      ========================== */
