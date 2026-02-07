@@ -150,9 +150,9 @@ if (imageModal) {
     currentAudio.volume = 0.25;
     currentAudio.play().catch(err => console.log("Autoplay blocked:", err));
     trackNameSpan.textContent = `Track ${currentTrackIndex + 1}`;
-    currentAudio.onended = () => {
-      currentTrackIndex = (currentTrackIndex + 1) % musicUrls.length;
-      playTrack(currentTrackIndex);
+    currentAudio.onended = () => {z
+      currentTrackIndex = (currentTrackIndex + 1) % musicUrls.length;z
+      playTrack(currentTrackIndex);z
     };
   }
   function startMusic() {
@@ -375,6 +375,7 @@ form.addEventListener("submit", (e) => {
 
     // DO NOT append "dlt" locally
     input.value = "";
+    updateRecordBtn();
     return;
   }
 
@@ -387,6 +388,7 @@ form.addEventListener("submit", (e) => {
   if (replyBar) replyBar.style.display = "none";
   input.value = "";
   socket.emit("stop typing", username);
+  updateRecordBtn();
 });
 
 // RECEIVE
