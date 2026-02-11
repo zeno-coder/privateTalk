@@ -251,10 +251,19 @@ socket.on("admin status", ({ type, by }) => {
 
     /*Media: open file picker */
   if (mediaBtn && imageInput) {
-    mediaBtn.addEventListener("click", () => {
-      imageInput.click();
-    });
+   mediaBtn.addEventListener("click", (e) => {
+  e.stopPropagation(); // prevents ghost bubbling
+  imageInput.click();
+});
+
   }
+// Mobile fix for media button
+if (mediaBtn && imageInput) {
+  mediaBtn.addEventListener("touchend", function(e) {
+    e.preventDefault();
+    imageInput.click();
+  }, { passive: false });
+}
 
   /* Media: image select & preview*/
   if (imageInput) {
@@ -288,15 +297,16 @@ socket.on("admin status", ({ type, by }) => {
     });
   }
   /* Media: send image */
-  if (sendImageBtn) {
-    sendImageBtn.addEventListener("click", async () => {
-      if (!selectedImageBuffer) return;
+ if (sendImageBtn) {
+  sendImageBtn.addEventListener("click", () => {
+    const file = imageInput.files[0];
+    if (!file) return;
 
-      const res = await fetch(selectedImageBuffer);
-      const buffer = await res.arrayBuffer();
+    const reader = new FileReader();
 
+    reader.onload = function () {
       socket.emit("send image", {
-        buffer,
+        buffer: reader.result,
         viewOnce: viewOnceCheckbox.checked
       });
 
@@ -306,8 +316,12 @@ socket.on("admin status", ({ type, by }) => {
       imageInput.value = "";
       selectedImageBuffer = null;
       viewOnceCheckbox.checked = false;
-    });
-  }
+    };
+
+    reader.readAsArrayBuffer(file);
+  });
+}
+
 
   /*Append message (handles replies) */
 
@@ -1283,8 +1297,12 @@ if (chatMain) {
 
 // Mobile
 if (chatMain) {
-  chatMain.addEventListener("touchend", handleAdminTripleTap);
+  chatMain.addEventListener("touchend", function() {
+    handleAdminTripleTap();
+  }, { passive: true });
 }
+
+
 
   /* ==========================
      Finish DOMContentLoaded

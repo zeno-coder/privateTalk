@@ -851,14 +851,15 @@ li.replying.test-highlight {
 .image-preview {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  gap: 12px;
-  z-index: 9999;
+  align-items: center;
+  z-index: 9999;              /* VERY IMPORTANT */
+  pointer-events: auto;       /* VERY IMPORTANT */
 }
+
 
 .image-preview img {
   max-width: 80%;
