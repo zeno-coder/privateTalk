@@ -178,10 +178,14 @@ if (data.buffer.byteLength > 5 * 1024 * 1024) {
   });
 
   // Notify receiver that an image exists
-  socket.broadcast.to(roomId).emit("new image", {
-    mediaId,
-    viewOnce: data.viewOnce
-  });
+const senderName = connectedUsers.get(socket.id);
+
+io.to(roomId).emit("new image", {
+  mediaId,
+  viewOnce: data.viewOnce,
+  sender: senderName
+});
+
 });
 // View image
 socket.on("view image", (mediaId) => {

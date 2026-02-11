@@ -476,20 +476,29 @@ socket.on("chat message", (msg) => {
   }
 });
   /* Media: receive image notice */
-socket.on("new image", ({ mediaId, viewOnce }) => {
+/* Media: receive image notice */
+socket.on("new image", ({ mediaId, viewOnce, sender }) => {
+
   const li = document.createElement("li");
-  li.className = "received image-message";
+
+  // ✅ Decide bubble side
+  if (sender === username) {
+    li.className = "sent image-message";
+  } else {
+    li.className = "received image-message";
+  }
+
   li.dataset.mediaId = mediaId;
   li.dataset.viewOnce = viewOnce ? "true" : "false";
 
-  // delete system compatibility
-  li.dataset.user = "Photo";
+  // Keep delete compatibility
+  li.dataset.user = sender;
   li.dataset.text = "image";
   li.dataset.id = mediaId;
   li.dataset.type = "image";
 
   li.innerHTML = `
-    <strong>Photo:</strong> ${viewOnce ? "(view once)" : ""}
+    <strong>${sender}:</strong> ${viewOnce ? "(view once)" : ""}
     <br>
     <button class="view-image-btn">View</button>
   `;
@@ -501,6 +510,7 @@ socket.on("new image", ({ mediaId, viewOnce }) => {
   messages.appendChild(li);
   messages.scrollTop = messages.scrollHeight;
 });
+
 
    /* Media: receive image data */
 socket.on("image data", ({ mediaId, buffer }) => {
