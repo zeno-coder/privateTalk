@@ -21,18 +21,31 @@
   <!-- Header container (3-dot menu + switches) -->
 <div class="header-container" style="display:none">
   <div class="menu-container">
-    <button id="menu-btn">⋮</button>
-    <div class="effect-switches" id="effect-switches">
-      <label><input type="checkbox" id="toggle-flowers" /> 🌸 Flowers</label>
-      <label><input type="checkbox" id="toggle-heart" /> ❤️ Heart</label>
-      <label><input type="checkbox" id="toggle-glow" checked /> 💫 Chat Glow</label>
+    <button id="menu-btn" class="star-menu">✧</button>
+   <div class="effect-switches" id="effect-switches">
 
-      <!-- 🎵 Music toggle (hidden by default) -->
-      <label id="toggle-music-label" style="display:none;">
-        <input type="checkbox" id="toggle-music" />
-        🎵 Music
-      </label>
-    </div>
+  <label class="magic-switch">
+    <input type="checkbox" id="toggle-flowers" />
+    <span>🌸 Flowers</span>
+  </label>
+
+  <label class="magic-switch">
+    <input type="checkbox" id="toggle-heart" />
+    <span>❤️ Heart</span>
+  </label>
+
+  <label class="magic-switch">
+    <input type="checkbox" id="toggle-glow" checked />
+    <span>💫 Chat Glow</span>
+  </label>
+
+  <label class="magic-switch" id="toggle-music-label" style="display:none;">
+    <input type="checkbox" id="toggle-music" />
+    <span>🎵 Music</span>
+  </label>
+
+</div>
+
   </div>
 </div>
 

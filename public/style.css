@@ -58,13 +58,69 @@ body {
   position: relative;
   z-index: 10;
 }
-#menu-btn {
-  background: transparent;
+/* Divine Golden Magical Star */
+#menu-btn.star-menu {
+  position: relative;
+  background: none;
   border: none;
-  font-size: 1.5em;
-  color: #ff4d6d;
+  font-size: 18px; /* mobile size */
   cursor: pointer;
+  padding: 4px 6px;
+  z-index: 20;
+
+  color: #ffffff;
+  opacity: 0.95;
+
+  text-shadow:
+    0 0 6px #fffacd,
+    0 0 12px #ffd700,
+    0 0 22px #ffcc00,
+    0 0 38px rgba(255, 215, 0, 0.95);
+
+  animation: divineTwinkle 2.2s infinite ease-in-out;
 }
+
+/* Desktop boost */
+@media (min-width: 768px) {
+  #menu-btn.star-menu {
+    font-size: 22px;      /* slightly bigger for PC */
+    opacity: 1;           /* full visibility */
+    text-shadow:
+      0 0 8px #ffffff,
+      0 0 18px #ffd700,
+      0 0 30px #ffcc00,
+      0 0 50px rgba(255, 215, 0, 1);
+  }
+}
+
+/* Hover glow */
+#menu-btn.star-menu:hover {
+  transform: scale(1.25) rotate(10deg);
+  text-shadow:
+    0 0 10px #ffffff,
+    0 0 25px #ffd700,
+    0 0 45px #ffcc00,
+    0 0 65px rgba(255, 215, 0, 1);
+}
+
+/* Smooth divine breathing */
+@keyframes divineTwinkle {
+  0% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+}
+
+
+
 
 /* ------------------ Music Controller (Top-Center for Desktop) ------------------ */
 @media (min-width: 600px) {
@@ -119,28 +175,88 @@ body {
   }
 }
 /* ----------------------------------------------------------------------------- */
-
-
-
-/* Effect switches */
+/* Magical Effect Switches Dropdown */
 .effect-switches {
+  position: absolute;
+  top: 60px;
+  right: 15px;
+
   display: flex;
-  gap: 15px;
-  font-size: 0.9em;
-  margin-top: 5px;
+  flex-direction: column;
+  gap: 12px;
+
+  padding: 15px 18px;
+  width: 220px;
+
+  border-radius: 18px;
+
+  /* Glass effect */
+  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+
+  box-shadow: 0 0 25px rgba(255, 77, 109, 0.4);
+
   opacity: 0;
+  transform: translateY(-10px) scale(0.95);
   pointer-events: none;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
 }
-.effect-switches label {
-  color: #ff4d6d;
-  cursor: pointer;
-  font-weight: 600;
-}
+
+/* When visible */
 .effect-switches.show {
   opacity: 1;
+  transform: translateY(0) scale(1);
   pointer-events: auto;
 }
+
+/* Label styling */
+.effect-switches label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+}
+
+/* Hide default checkbox */
+.effect-switches input[type="checkbox"] {
+  appearance: none;
+  width: 42px;
+  height: 20px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.3);
+  position: relative;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+/* Toggle circle */
+.effect-switches input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  background: white;
+  transition: 0.3s ease;
+}
+
+/* When checked */
+.effect-switches input[type="checkbox"]:checked {
+  background: linear-gradient(135deg, #ff4d6d, #8a2be2);
+  box-shadow: 0 0 10px #ff4d6d;
+}
+
+.effect-switches input[type="checkbox"]:checked::before {
+  transform: translateX(22px);
+}
+
 
 /* Chat container */
 .chat-container {
