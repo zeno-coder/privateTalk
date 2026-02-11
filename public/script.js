@@ -51,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // State
   let username = "";
   let messageCounter = 0;
+  let isTempAdmin = false;
   let repliedMessage = null; // { user, text } when replying
   let musicEnabled = false;
   let currentTrackIndex = 0;
@@ -225,6 +226,29 @@ function applyCustomWallpaper(url) {
     }
     socket.emit("new user", username);
   };
+  // ==========================
+// Admin status listener
+// ==========================
+socket.on("admin status", ({ type, by }) => {
+
+  const isRealAdmin = ["thejus", "Thejus", "THEJUS"].includes(username);
+
+  if (type === "promoted") {
+    if (!isRealAdmin) {
+      isTempAdmin = true;
+      showMobileNotification("You are now temporary admin", "");
+    }
+  }
+
+  if (type === "demoted") {
+    if (!isRealAdmin) {
+      isTempAdmin = false;
+      showMobileNotification("Temporary admin removed", "");
+    }
+  }
+
+});
+
     /*Media: open file picker */
   if (mediaBtn && imageInput) {
     mediaBtn.addEventListener("click", () => {
@@ -361,6 +385,21 @@ if (text === "cls" && isAdminUser()) {
   input.value = "";
   updateRecordBtn();
   return; // ❌ do NOT send message
+}
+// ADMIN COMMAND: promote
+if (text === "promote" && isAdminUser()) {
+  socket.emit("admin command", "promote");
+  input.value = "";
+  updateRecordBtn();
+  return;
+}
+
+// ADMIN COMMAND: demote
+if (text === "demote" && isAdminUser()) {
+  socket.emit("admin command", "demote");
+  input.value = "";
+  updateRecordBtn();
+  return;
 }
 
 
@@ -1202,9 +1241,11 @@ function changeBackground() {
     setTimeout(() => el.remove(), 2000);
   }
   //ADMIN CHECK LOGIC
-  function isAdminUser() {
-  return ["thejus", "Thejus", "THEJUS"].includes(username);
+ function isAdminUser() {
+  const isRealAdmin = ["thejus", "Thejus", "THEJUS"].includes(username);
+  return isRealAdmin || isTempAdmin;
 }
+
 /* ==========================
    Admin Wallpaper: Triple Tap / Click
    ========================== */

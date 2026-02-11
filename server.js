@@ -29,6 +29,9 @@ const mediaStore = new Map();
     viewedBy: Set(socket.id)
   }
 */
+const tempAdmins = new Map(); 
+// roomId => username
+
 
 // Room helpers
 function createRoom() {
@@ -53,9 +56,12 @@ function getUsernamesInRoom(roomId) {
   }
   return names;
 }
-function isAdmin(username) {
-  return ["thejus", "Thejus", "THEJUS"].includes(username);
+function isAdmin(username, roomId) {
+  const realAdmin = ["thejus", "Thejus", "THEJUS"].includes(username);
+  const tempAdmin = tempAdmins.get(roomId) === username;
+  return realAdmin || tempAdmin;
 }
+
 
 // Socket.io logic
 io.on("connection", (socket) => {
@@ -79,7 +85,8 @@ io.on("connection", (socket) => {
   // ===== Admin wallpaper upload =====
 socket.on("set wallpaper", (data) => {
   const username = connectedUsers.get(socket.id);
-  if (!isAdmin(username)) return;
+  if (!isAdmin(username, roomId)) return;
+
 
   if (!data?.buffer || !data?.mime) return;
 
@@ -90,18 +97,54 @@ socket.on("set wallpaper", (data) => {
 });
 socket.on("return bg", () => {
   const username = connectedUsers.get(socket.id);
-  if (!isAdmin(username)) return;
+  if (!isAdmin(username, roomId)) return;
 
   // 🔥 Broadcast reset to room (NO STORAGE)
   io.to(roomId).emit("reset wallpaper");
 });
 socket.on("clear chat", () => {
   const username = connectedUsers.get(socket.id);
-  if (!isAdmin(username)) return;
+  if (!isAdmin(username, roomId)) return;
 
   io.to(roomId).emit("clear chat");
 });
 
+socket.on("admin command", (command) => {
+  const username = connectedUsers.get(socket.id);
+  const roomId = socket.data.roomId;
+
+  if (!isAdmin(username)) return; // only real admin can promote
+
+  const members = rooms.get(roomId);
+  if (!members) return;
+
+  // Find the other user in room
+  let targetUser = null;
+  for (const id of members) {
+    if (id !== socket.id) {
+      targetUser = connectedUsers.get(id);
+      break;
+    }
+  }
+
+  if (!targetUser) return;
+
+  if (command === "promote") {
+    tempAdmins.set(roomId, targetUser);
+    io.to(roomId).emit("admin status", {
+      type: "promoted",
+      by: username
+    });
+  }
+
+  if (command === "demote") {
+    tempAdmins.delete(roomId);
+    io.to(roomId).emit("admin status", {
+      type: "demoted",
+      by: username
+    });
+  }
+});
 
   // Chat messages (NO DUPLICATE TO SENDER)
   socket.on("chat message", (msg) => {
