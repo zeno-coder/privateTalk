@@ -471,10 +471,20 @@ if (text === "demote" && isAdminUser()) {
 
 // RECEIVE
 socket.on("chat message", (msg) => {
+
+  // If message is from me but it's AI (has replied property)
+  if (msg.user === username && msg.replied) {
+    appendMessage(msg, "sent");
+    return;
+  }
+
+  // Normal receive logic
   if (msg.user !== username) {
     appendMessage(msg, "received");
   }
+
 });
+
   /* Media: receive image notice */
 /* Media: receive image notice */
 socket.on("new image", ({ mediaId, viewOnce, sender }) => {

@@ -1,4 +1,5 @@
 // server.js
+require("dotenv").config();
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -7,6 +8,12 @@ const path = require("path");
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
+const Groq = require("groq-sdk");
+
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY
+});
+
 
 // Serve static files
 app.use(express.static(path.join(__dirname, "public")));
@@ -147,9 +154,52 @@ socket.on("admin command", (command) => {
 });
 
   // Chat messages (NO DUPLICATE TO SENDER)
-  socket.on("chat message", (msg) => {
-    socket.broadcast.to(roomId).emit("chat message", msg);
-  });
+socket.on("chat message", async (msg) => {
+
+  const senderName = connectedUsers.get(socket.id);
+
+  // Broadcast original message normally
+  socket.broadcast.to(roomId).emit("chat message", msg);
+
+  // 🔥 JAIN AI TRIGGER
+  if (msg.text.toLowerCase().startsWith("jain ")) {
+
+    const prompt = msg.text.substring(5).trim();
+    if (!prompt) return;
+
+    try {
+
+      const completion = await groq.chat.completions.create({
+        messages: [
+          { role: "system", content: "You are JAIN, a helpful AI assistant inside a private chat app. Be concise and intelligent." },
+          { role: "user", content: prompt }
+        ],
+      model: "llama-3.3-70b-versatile"
+      });
+
+      const aiText = completion.choices[0].message.content;
+
+      const aiMessage = {
+        user: senderName, // appears from same user
+        text: aiText,
+        id: `ai-${Date.now()}`,
+        ts: Date.now(),
+        replied: {
+          user: msg.user,
+          text: msg.text,
+          id: msg.id
+        }
+      };
+
+      io.to(roomId).emit("chat message", aiMessage);
+
+    } catch (err) {
+      console.error("Groq error:", err);
+    }
+  }
+
+});
+
 
   // Voice messages (NO DUPLICATE TO SENDER)
   socket.on("voice message", (msg) => {
