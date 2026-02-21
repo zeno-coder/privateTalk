@@ -7,14 +7,14 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/your-username/ChatApp/stargazers">
-    <img src="https://img.shields.io/github/stars/your-username/ChatApp?style=for-the-badge" />
+  <a href="https://github.com/zeno-coder/ChatApp/stargazers">
+    <img src="https://img.shields.io/github/stars/zeno-coder/ChatApp?style=for-the-badge" />
   </a>
-  <a href="https://github.com/your-username/ChatApp/network">
-    <img src="https://img.shields.io/github/forks/your-username/ChatApp?style=for-the-badge" />
+  <a href="https://github.com/zeno-coder/ChatApp/network">
+    <img src="https://img.shields.io/github/forks/zeno-coder/ChatApp?style=for-the-badge" />
   </a>
-  <a href="https://github.com/your-username/ChatApp/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/your-username/ChatApp?style=for-the-badge" />
+  <a href="https://github.com/zeno-coder/ChatApp/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/zeno-coder/ChatApp?style=for-the-badge" />
   </a>
   <img src="https://img.shields.io/badge/Node.js-Backend-339933?style=for-the-badge&logo=node.js&logoColor=white"/>
   <img src="https://img.shields.io/badge/WebSocket-RealTime-00599C?style=for-the-badge"/>
