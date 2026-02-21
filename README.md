@@ -138,7 +138,7 @@ Automatic background rotation with:
 ---------------------------------------------------------------------
 
 ---------------------------------------------------------------------
-#System Architecture
+## 04 | System Architecture
 
 ```text
 Client (Browser)
