@@ -1,19 +1,20 @@
-
-#  ChatApp Web Service
+# ===================================================================
+#  PrivateTalk Web Service
+# ===================================================================
 
 <p align="center">
   <b>Secure • Real-Time • Modern Web Messaging Platform</b>
 </p>
 
 <p align="center">
-  <a href="https://github.com/zeno-coder/ChatApp/stargazers">
-    <img src="https://img.shields.io/github/stars/zeno-coder/ChatApp?style=for-the-badge" />
+  <a href="https://github.com/zeno-coder/privateTalk/stargazers">
+    <img src="https://img.shields.io/github/stars/zeno-coder/privateTalk?style=for-the-badge" />
   </a>
-  <a href="https://github.com/zeno-coder/ChatApp/network">
-    <img src="https://img.shields.io/github/forks/zeno-coder/ChatApp?style=for-the-badge" />
+  <a href="https://github.com/zeno-coder/privateTalk/network">
+    <img src="https://img.shields.io/github/forks/zeno-coder/privateTalk?style=for-the-badge" />
   </a>
-  <a href="https://github.com/zeno-coder/ChatApp/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/zeno-coder/ChatApp?style=for-the-badge" />
+  <a href="https://github.com/zeno-coder/privateTalk/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/zeno-coder/privateTalk?style=for-the-badge" />
   </a>
   <img src="https://img.shields.io/badge/Node.js-Backend-339933?style=for-the-badge&logo=node.js&logoColor=white"/>
   <img src="https://img.shields.io/badge/WebSocket-RealTime-00599C?style=for-the-badge"/>
@@ -23,7 +24,9 @@
 
 ## 01 │ OVERVIEW
 
-ChatApp is a premium web-based messaging service built using:
+PrivateTalk is a secure, premium web-based messaging platform built with modern web technologies.
+
+Technology Stack:
 
 • Node.js  
 • HTML5  
@@ -31,23 +34,23 @@ ChatApp is a premium web-based messaging service built using:
 • JavaScript  
 • WebSockets  
 
-It delivers secure, scalable, and real-time communication over HTTPS.
+The system delivers scalable, encrypted, real-time communication over HTTPS.
 
 ---------------------------------------------------------------------
 
 ## 02 │ CORE FEATURES
 
-[✓] End-to-End Security  
-All communication is encrypted using SSL/TLS over HTTPS.
+[✓] End-to-End Encryption  
+All communication secured via SSL/TLS over HTTPS.
 
 [✓] Real-Time Messaging  
 WebSocket-powered instant message delivery.
 
-[✓] Modern Responsive UI  
-Clean interface optimized for desktop, tablet, and mobile.
+[✓] Responsive Interface  
+Optimized for desktop, tablet, and mobile devices.
 
-[✓] Scalable Backend  
-Built on Node.js with efficient architecture.
+[✓] Scalable Architecture  
+Efficient Node.js backend with modular structure.
 
 ---------------------------------------------------------------------
 
@@ -68,10 +71,10 @@ Node.js Server
 
 ```bash
 # Clone repository
-git clone https://github.com/your-username/ChatApp.git
+git clone https://github.com/zeno-coder/privateTalk.git
 
 # Navigate into project
-cd ChatApp
+cd privateTalk
 
 # Install dependencies
 npm install
