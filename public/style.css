@@ -944,5 +944,27 @@ li.replying.test-highlight {
 .msg-tick.seen {
   color: #ffffff;  /* white when read */
 }
+/* ===== Reply Preview Styling ===== */
 
+/* Reply inside SENT (blue bubble) */
+.reply-sent {
+  background: rgba(255, 255, 255, 0.18);
+  border-left: 3px solid rgba(255, 255, 255, 0.6);
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  font-size: 0.85em;
+  border-radius: 6px;
+  color: #ffffff;
+}
+
+/* Reply inside RECEIVED (grey bubble) */
+.reply-received {
+  background: #f2f2f2;
+  border-left: 3px solid #ff69b4;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  font-size: 0.85em;
+  border-radius: 6px;
+  color: #111;
+}
 

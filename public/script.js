@@ -335,15 +335,18 @@ if (mediaBtn && imageInput) {
 
 
     // If message has a replied preview
-    let replyHtml = "";
-    if (msgObj.replied) {
-      // trim long text for preview (one-line)
-      let preview = String(msgObj.replied.text || "").trim();
-      if (preview.length > 120) preview = preview.slice(0, 117) + "...";
-      replyHtml = `<div class="replied-preview" style="background:#f8f8f8; border-left:4px solid #ff69b4; padding:6px 8px; margin-bottom:6px; font-size:0.88em; border-radius:4px;">
-                    <strong>${escapeHtml(msgObj.replied.user)}:</strong> ${escapeHtml(preview)}
-                   </div>`;
-    }
+   let replyHtml = "";
+if (msgObj.replied) {
+  let preview = String(msgObj.replied.text || "").trim();
+  if (preview.length > 120) preview = preview.slice(0, 117) + "...";
+
+  const replyClass = type === "sent" ? "reply-sent" : "reply-received";
+
+  replyHtml = `
+    <div class="replied-preview ${replyClass}">
+      <strong>${escapeHtml(msgObj.replied.user)}:</strong> ${escapeHtml(preview)}
+    </div>`;
+}
 
 const time = msgObj.ts
   ? new Date(msgObj.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
@@ -1255,13 +1258,8 @@ function changeBackground() {
         return;
       }
 
-      const strong = messageEl.querySelector("strong");
-      if (!strong) return;
-
-      const user = strong.textContent.replace(/:$/, "").trim();
-      // compute message text content (remove strong content)
-      let full = messageEl.innerText || "";
-      full = full.replace(new RegExp("^" + escapeRegExp(strong.textContent)), "").trim();
+const user = messageEl.dataset.user;
+const full = messageEl.dataset.text;
 
       // save replied message object
       repliedMessage = {
