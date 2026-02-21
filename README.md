@@ -139,8 +139,7 @@ Automatic background rotation with:
 
 ---------------------------------------------------------------------
 
-## 03 │ SYSTEM ARCHITECTURE
-
+```text
 Client (Browser)
         │
         │ HTTPS + WebSocket
