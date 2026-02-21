@@ -1,6 +1,6 @@
-# ===================================================================
+
 #  PrivateTalk Web Service
-# ===================================================================
+
 
 <p align="center">
   <b>Secure • Real-Time • Modern Web Messaging Platform</b>
