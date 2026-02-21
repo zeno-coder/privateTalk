@@ -38,19 +38,110 @@ The system delivers scalable, encrypted, real-time communication over HTTPS.
 
 ---------------------------------------------------------------------
 
+---------------------------------------------------------------------
+
 ## 02 │ CORE FEATURES
 
-[✓] End-to-End Encryption  
-All communication secured via SSL/TLS over HTTPS.
+[✓] Secure 1v1 Room-Based Architecture  
+Users are automatically paired into private rooms (2 users per room).  
+Rooms are dynamically created and destroyed when empty.
 
-[✓] Real-Time Messaging  
-WebSocket-powered instant message delivery.
+[✓] Real-Time Messaging Engine  
+Bi-directional communication powered by Socket.IO with:
+- Instant message delivery
+- Message timestamps
+- Auto-scroll synchronization
 
-[✓] Responsive Interface  
-Optimized for desktop, tablet, and mobile devices.
+[✓] Message Status Indicators  
+Professional delivery tracking:
+- ✓   Sent
+- ✓✓  Delivered
+- ✓✓  Seen (highlighted)
 
-[✓] Scalable Architecture  
-Efficient Node.js backend with modular structure.
+[✓] WhatsApp-Style Reply System  
+Swipe / drag / click any message to reply.  
+Includes:
+- Original message preview
+- Reply metadata tracking (ID-based)
+- Precise deletion targeting
+
+[✓] Smart Message Deletion  
+Admin or command-based deletion with:
+- ID-based targeting
+- Animated particle dissolve effect
+- Visual feedback for both target and command message
+
+[✓] Voice Messaging System  
+Press-and-hold recording with:
+- Slide-to-cancel gesture
+- Real-time recording indicators
+- Audio streaming via MediaRecorder
+- Instant playback UI
+
+[✓] View-Once Media Sharing  
+Secure image transfer with:
+- 5MB size limit
+- One-time view expiration
+- In-memory encrypted storage
+- Automatic invalidation after view
+
+[✓] AI Assistant Integration (JAIN)  
+Integrated Groq LLaMA 3.3 70B model.  
+Trigger with:
+
+    jain <your prompt>
+
+Features:
+- Contextual reply
+- Thread-aware response
+- Reply-linked AI message
+
+[✓] Role-Based Admin System  
+Supports:
+- Permanent admin (hardcoded)
+- Temporary admin per room
+- Promote / demote commands
+- Wallpaper control
+- Chat clear control
+
+[✓] Synchronized Wallpaper Engine  
+Admin can:
+- Upload custom wallpaper
+- Reset to slideshow mode
+- Broadcast updates to room
+- Maintain session-only wallpaper state
+
+[✓] Live Typing & Recording Indicators  
+Real-time status:
+- "User is typing..."
+- "User is recording..."
+
+[✓] Active User Monitoring  
+- Live user list (desktop)
+- Join/leave notifications (mobile)
+- Room-aware tracking
+
+[✓] Interactive UI Effects Engine  
+Optional visual enhancements:
+- Glow pulse on new messages
+- Heart ripple animation
+- Falling flower particles
+- Cursor trail particles
+- Animated background transitions
+
+[✓] Background Slideshow System  
+Automatic background rotation with:
+- Smooth fade transition
+- Custom wallpaper override detection
+- Session-based persistence
+
+[✓] Secure Media Handling  
+- No database storage
+- In-memory media management
+- Automatic cleanup on disconnect
+- View-tracking per socket
+
+---------------------------------------------------------------------
 
 ---------------------------------------------------------------------
 
