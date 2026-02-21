@@ -96,13 +96,6 @@ Features:
 - Thread-aware response
 - Reply-linked AI message
 
-[✓] Role-Based Admin System  
-Supports:
-- Permanent admin (hardcoded)
-- Temporary admin per room
-- Promote / demote commands
-- Wallpaper control
-- Chat clear control
 
 [✓] Synchronized Wallpaper Engine  
 Admin can:
