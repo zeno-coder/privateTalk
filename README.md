@@ -14,7 +14,8 @@
     <img src="https://img.shields.io/github/forks/zeno-coder/privateTalk?style=for-the-badge" />
   </a>
   <a href="https://github.com/zeno-coder/privateTalk/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/zeno-coder/privateTalk?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" />
+</a>
   </a>
   <img src="https://img.shields.io/badge/Node.js-Backend-339933?style=for-the-badge&logo=node.js&logoColor=white"/>
   <img src="https://img.shields.io/badge/WebSocket-RealTime-00599C?style=for-the-badge"/>
