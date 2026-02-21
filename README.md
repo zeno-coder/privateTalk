@@ -89,7 +89,3 @@ The system delivers scalable, encrypted, real-time communication over HTTPS.
 
   jain <your prompt>
 
-  flowchart TD
-    A[Client (Browser)] -->|HTTPS + WebSocket| B[Node.js Server]
-    B --> C[No Database]
-    B --> D[No Message History]
