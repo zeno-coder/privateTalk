@@ -62,8 +62,8 @@ Client (Browser)
         ▼
 Node.js Server
         │
-        ├── Relational Database
-        └── NoSQL Storage
+        ├── No Database
+        └── No message history
 
 ---------------------------------------------------------------------
 
