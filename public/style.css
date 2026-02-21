@@ -923,7 +923,26 @@ li.replying.test-highlight {
   font-style: italic;
   font-size: 0.9em;
 }
+.msg-meta {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  margin-top: 4px;
+}
 
+.msg-time {
+  opacity: 0.7;
+}
+.msg-tick {
+  margin-left: 6px;
+  font-size: 0.9em;
+  color: #aaa;   /* grey */
+}
 
+.msg-tick.seen {
+  color: #ffffff;  /* white when read */
+}
 
 

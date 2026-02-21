@@ -345,7 +345,18 @@ if (mediaBtn && imageInput) {
                    </div>`;
     }
 
-    li.innerHTML = `${replyHtml}<strong>${escapeHtml(msgObj.user)}:</strong> ${escapeHtml(msgObj.text)}`;
+const time = msgObj.ts
+  ? new Date(msgObj.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+  : "";
+
+li.innerHTML = `
+  ${replyHtml}
+  <strong>${escapeHtml(msgObj.user)}:</strong> ${escapeHtml(msgObj.text)}
+  <div class="msg-meta">
+    <span class="msg-time">${time}</span>
+   ${type === "sent" ? `<span class="msg-tick single">✓</span>` : ""}
+  </div>
+`;
 
     // Effects: glow & heart ripple
     const glowToggle = document.getElementById("toggle-glow");
@@ -472,18 +483,55 @@ if (text === "demote" && isAdminUser()) {
 // RECEIVE
 socket.on("chat message", (msg) => {
 
-  // If message is from me but it's AI (has replied property)
-  if (msg.user === username && msg.replied) {
+  const isMine = msg.user === username;
+
+  if (isMine) {
     appendMessage(msg, "sent");
     return;
   }
 
-  // Normal receive logic
-  if (msg.user !== username) {
-    appendMessage(msg, "received");
-  }
+  appendMessage(msg, "received");
+
+  // confirm delivered
+  socket.emit("message-delivered", {
+    messageId: msg.id
+  });
+
+  // confirm seen immediately
+  socket.emit("message-seen", {
+    messageId: msg.id
+  });
 
 });
+//double tick
+socket.on("message-delivered", ({ messageId }) => {
+
+  const msg = document.querySelector(`li[data-id="${messageId}"]`);
+  if (!msg) return;
+
+  const tick = msg.querySelector(".msg-tick");
+  if (!tick) return;
+
+  tick.textContent = "✓✓";   // double tick
+  // DO NOT add .seen here
+
+});
+
+// blue tick
+socket.on("message-seen", ({ messageId }) => {
+
+  const msg = document.querySelector(`li[data-id="${messageId}"]`);
+  if (!msg) return;
+
+  const tick = msg.querySelector(".msg-tick");
+  if (!tick) return;
+
+tick.textContent = "✓✓";
+tick.classList.remove("single");
+tick.classList.add("seen");
+
+});
+
 
   /* Media: receive image notice */
 /* Media: receive image notice */
@@ -1039,7 +1087,7 @@ function updateIndicator() {
   "/assets/l26.jpg",
   "/assets/l26.jpg",
   "/assets/l27.jpg",
-  "assets/l28.jpg"
+  "/assets/l28.jpg"
 ];
 
   let bgIndex = 0;

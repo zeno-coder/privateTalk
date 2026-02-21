@@ -199,6 +199,15 @@ socket.on("chat message", async (msg) => {
   }
 
 });
+socket.on("message-delivered", ({ messageId }) => {
+  const roomId = socket.data.roomId;
+  socket.to(roomId).emit("message-delivered", { messageId });
+});
+
+socket.on("message-seen", ({ messageId }) => {
+  const roomId = socket.data.roomId;
+  socket.to(roomId).emit("message-seen", { messageId });
+});
 
 
   // Voice messages (NO DUPLICATE TO SENDER)
