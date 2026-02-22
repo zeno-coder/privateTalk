@@ -109,7 +109,6 @@ function applyCustomWallpaper(url) {
     "https://files.catbox.moe/x4wwty.mp4",
     "https://files.catbox.moe/dr6g3i.mp4",
     "https://files.catbox.moe/hic3ht.mp4",
-    "https://files.catbox.moe/fhuh4s.mp4",
     "https://files.catbox.moe/t8e1x9.mp4",
     "https://files.catbox.moe/rmf1cg.mp4",
     "https://files.catbox.moe/ioeftv.mp4",
@@ -120,7 +119,6 @@ function applyCustomWallpaper(url) {
     "https://files.catbox.moe/bcrbr6.mp4",
     "https://files.catbox.moe/paqtae.mp4",
     "https://files.catbox.moe/mx0pha.mp4",
-    "https://files.catbox.moe/wfj659.mp4",
     "https://files.catbox.moe/ip9a6m.mp4",
     "https://files.catbox.moe/uj0338.mp4",
     "https://files.catbox.moe/kofc8i.mp4",
@@ -148,7 +146,8 @@ function applyCustomWallpaper(url) {
     "https://files.catbox.moe/9pw1ym.mp4",
     "https://files.catbox.moe/9nv0nw.mp3",
     "https://files.catbox.moe/exa8zj.mp3",
-    "https://files.catbox.moe/nxyai1.mp4"
+    "https://files.catbox.moe/nxyai1.mp4",
+    "https://files.catbox.moe/1uw2z5.mpeg"
   ];
 
   /* ==========================
