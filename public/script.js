@@ -1199,7 +1199,16 @@ function updateIndicator() {
   "/assets/l26.jpg",
   "/assets/l26.jpg",
   "/assets/l27.jpg",
-  "/assets/l28.jpg"
+  "/assets/l28.jpg",
+  "/assets/l29.jpg",
+  "/assets/l30.jpg",
+  "/assets/l31.jpg",
+  "/assets/l32.jpg",
+  "/assets/l33.jpg",
+  "/assets/l34.jpg",
+  "/assets/l35.jpg",
+  "/assets/l36.jpg"
+
 ];
 
   let bgIndex = 0;
