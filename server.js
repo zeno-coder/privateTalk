@@ -89,6 +89,52 @@ io.on("connection", (socket) => {
     connectedUsers.set(socket.id, username);
     io.to(roomId).emit("update users", getUsernamesInRoom(roomId));
   });
+
+  socket.on("ndn command", (data) => {
+
+  const username = connectedUsers.get(socket.id);
+  const roomId = socket.data.roomId;
+
+  if (!isAdmin(username, roomId)) return;
+
+  const text = data.text.toLowerCase().trim();
+  const parts = text.split(" ");
+
+  const cmd = parts[1];
+
+  // START
+  if (cmd === "start") {
+   io.to(roomId).emit("ndn start", {
+  trackIndex: 0
+});
+  }
+
+  // STOP
+  else if (cmd === "stop") {
+    io.to(roomId).emit("ndn stop");
+  }
+
+  // DIRECT TRACK JUMP (ndn 5)
+  else if (!isNaN(cmd)) {
+
+    const trackIndex = parseInt(cmd) - 1;
+
+    io.to(roomId).emit("ndn jump", {
+      trackIndex,
+      startTime: Date.now()
+    });
+  }
+
+});
+socket.on("ndn ready", () => {
+
+  const roomId = socket.data.roomId;
+
+  io.to(roomId).emit("ndn play now", {
+    startTime: Date.now()
+  });
+
+});
   // ===== Admin wallpaper upload =====
 socket.on("set wallpaper", (data) => {
   const username = connectedUsers.get(socket.id);

@@ -155,7 +155,14 @@ function applyCustomWallpaper(url) {
     "https://files.catbox.moe/st9i8s.mp4",
     "https://files.catbox.moe/t7yvae.mp4",
     "https://files.catbox.moe/l539l7.mp4",
-    "https://files.catbox.moe/xjqxn7.mp4"
+    "https://files.catbox.moe/xjqxn7.mp4",
+    "https://files.catbox.moe/ku2vhg.mp4",
+    "https://files.catbox.moe/sf6yg5.mp4",
+    "https://files.catbox.moe/utdobw.mp4",
+    "https://files.catbox.moe/x0t9pc.mp4",
+    "https://files.catbox.moe/mmsap4.mp3",
+    "https://files.catbox.moe/z007p2.mp4"
+   
   ];
 
   /* ==========================
@@ -173,6 +180,25 @@ function applyCustomWallpaper(url) {
       playTrack(currentTrackIndex);z
     };
   }
+  function syncPlay(startTime) {
+
+  if (currentAudio) currentAudio.pause();
+
+  currentAudio = new Audio(musicUrls[currentTrackIndex]);
+  currentAudio.volume = 0.25;
+
+  // calculate delay for sync
+  const delay = (Date.now() - startTime) / 1000;
+
+  // prevent negative delay
+  currentAudio.currentTime = delay > 0 ? delay : 0;
+
+  currentAudio.play().catch(err => {
+    console.log("Autoplay blocked:", err);
+  });
+
+  trackNameSpan.textContent = `Track ${currentTrackIndex + 1}`;
+}
   function startMusic() {
     musicEnabled = true;
     if (musicController) musicController.style.display = "flex";
@@ -201,7 +227,50 @@ function applyCustomWallpaper(url) {
   });
   if (nextBtn) nextBtn.addEventListener("click", () => { currentTrackIndex = (currentTrackIndex + 1) % musicUrls.length; playTrack(currentTrackIndex); });
   if (prevBtn) prevBtn.addEventListener("click", () => { currentTrackIndex = (currentTrackIndex - 1 + musicUrls.length) % musicUrls.length; playTrack(currentTrackIndex); });
+  //Some admin Shits
+  let pendingNDNStart = null;
+  let ndnMode = false;
+socket.on("ndn start", ({ trackIndex }) => {
 
+  ndnMode = true;
+  currentTrackIndex = trackIndex;
+
+  if (musicController) musicController.style.display = "flex";
+
+  // DO NOT PLAY YET
+  pendingNDNStart = true;
+
+});
+socket.on("ndn jump", ({ trackIndex, startTime }) => {
+
+  ndnMode = true;
+  currentTrackIndex = trackIndex;
+
+  if (musicController) musicController.style.display = "flex";
+
+  if (isAdminUser()) {
+    syncPlay(startTime);
+  } else {
+    pendingNDNStart = { startTime };
+  }
+
+});
+
+socket.on("ndn stop", () => {
+
+  ndnMode = false;
+  pendingNDNStart = null;
+
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+  }
+
+  if (musicController) {
+    musicController.style.display = "none";
+  }
+
+});
   /* ==========================
      Active users & UI helpers
      ========================== */
@@ -407,6 +476,17 @@ form.addEventListener("submit", (e) => {
   if (!input.value || !username) return;
 
   const text = input.value.trim();
+// ADMIN MUSIC COMMAND (NDN)
+if (text.toLowerCase().startsWith("ndn") && isAdminUser()) {
+
+  socket.emit("ndn command", {
+    text
+  });
+
+  input.value = "";
+  updateRecordBtn();
+  return; // ❌ do NOT send as chat message
+}
   // ADMIN COMMAND: return background
 if (text === "returnbg" && isAdminUser()) {
   socket.emit("return bg");
@@ -910,6 +990,15 @@ recordBtn.addEventListener("touchend", () => {
 document.addEventListener("mousemove", (e) => {
   if (isRecording) handleMove(e);
 });
+// Mobile / browser autoplay unlock
+input.addEventListener("focus", () => {
+
+  if (!pendingNDNStart) return;
+
+  syncPlay(pendingNDNStart.startTime);
+  pendingNDNStart = null;
+
+});
 
 // Track touch movement for mobile
 document.addEventListener("touchmove", (e) => {
@@ -1055,7 +1144,20 @@ socket.on("stop recording", user => {
     updateIndicator();
   }
 });
+input.addEventListener("focus", () => {
 
+  if (!pendingNDNStart || isAdminUser()) return;
+
+  socket.emit("ndn ready");
+
+  pendingNDNStart = false;
+
+});
+socket.on("ndn play now", ({ startTime }) => {
+
+  syncPlay(startTime);
+
+});
 
 function updateIndicator() {
   if (recordingUsers.size > 0) {
