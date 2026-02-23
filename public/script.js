@@ -147,7 +147,15 @@ function applyCustomWallpaper(url) {
     "https://files.catbox.moe/9nv0nw.mp3",
     "https://files.catbox.moe/exa8zj.mp3",
     "https://files.catbox.moe/nxyai1.mp4",
-    "https://files.catbox.moe/1uw2z5.mpeg"
+    "https://files.catbox.moe/1uw2z5.mpeg",
+    "https://files.catbox.moe/basj61.mp4",
+    "https://files.catbox.moe/7f0pzh.mp4",
+    "https://files.catbox.moe/bwzfe7.mp4",
+    "https://files.catbox.moe/0zhxlu.mp4",
+    "https://files.catbox.moe/st9i8s.mp4",
+    "https://files.catbox.moe/t7yvae.mp4",
+    "https://files.catbox.moe/l539l7.mp4",
+    "https://files.catbox.moe/xjqxn7.mp4"
   ];
 
   /* ==========================
