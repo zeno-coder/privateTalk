@@ -271,6 +271,33 @@ socket.on("ndn stop", () => {
   }
 
 });
+// ===============================
+// 🌑 DARK MODE SYSTEM
+// ===============================
+
+let darkModeActive = false;
+
+socket.on("ndn dark", () => {
+
+  darkModeActive = true;
+
+  document.body.classList.add("ndn-dark");
+
+  const chatContainer = document.querySelector(".chat-container");
+  if (chatContainer) {
+    chatContainer.style.backgroundImage = "none";
+  }
+
+});
+
+socket.on("ndn return", () => {
+
+  darkModeActive = false;
+
+  document.body.classList.remove("ndn-dark");
+  document.body.classList.remove("music-active");
+
+});
   /* ==========================
      Active users & UI helpers
      ========================== */
@@ -572,6 +599,21 @@ if (text === "demote" && isAdminUser()) {
 
 // RECEIVE
 socket.on("chat message", (msg) => {
+  // 🌑 DARK MODE COMMANDS
+if (msg.user === username) {
+
+  const text = msg.text?.trim().toLowerCase();
+
+  if (text === "ndn dark") {
+    socket.emit("ndn dark", { room: roomCode });
+    return;
+  }
+
+  if (text === "ndn return") {
+    socket.emit("ndn return", { room: roomCode });
+    return;
+  }
+}
 
   const isMine = msg.user === username;
 
@@ -1244,6 +1286,7 @@ function updateIndicator() {
   chatContainer.style.backgroundImage = `url('${bgImages[0]}')`;
 }
 function changeBackground() {
+  if (darkModeActive) return;
   if (!chatContainer) return;
 
   // ⛔ Stop slideshow if custom wallpaper is active

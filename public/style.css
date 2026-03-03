@@ -967,4 +967,75 @@ li.replying.test-highlight {
   border-radius: 6px;
   color: #111;
 }
+/* ===================================== */
+/* 🌑 DARK MODE — 3D MESSAGE BUBBLES */
+/* ===================================== */
 
+/* Background only */
+body.ndn-dark {
+  background: #000 !important;
+}
+
+body.ndn-dark .chat-container {
+  background: #000 !important;
+  background-image: none !important;
+}
+
+/* 🎯 TARGET ONLY CHAT MESSAGES */
+body.ndn-dark #messages li {
+  position: relative;
+  border-radius: 18px;
+  padding: 10px 14px;
+  transition: all 0.3s ease;
+}
+
+/* ========================== */
+/* SENT MESSAGE */
+/* ========================== */
+
+body.ndn-dark #messages li.sent {
+  background: linear-gradient(145deg, #1a001f, #0d0012);
+  color: #fff;
+  border: 1px solid #ff00aa;
+
+  /* 3D depth */
+  box-shadow:
+    0 4px 15px rgba(255, 0, 170, 0.4),
+    inset 0 1px 3px rgba(255, 255, 255, 0.1);
+
+  transform: perspective(600px) rotateX(2deg);
+}
+
+/* ========================== */
+/* RECEIVED MESSAGE */
+/* ========================== */
+
+body.ndn-dark #messages li.received {
+  background: linear-gradient(145deg, #001a1f, #000d12);
+  color: #fff;
+  border: 1px solid #00eaff;
+
+  box-shadow:
+    0 4px 15px rgba(0, 234, 255, 0.4),
+    inset 0 1px 3px rgba(255, 255, 255, 0.1);
+
+  transform: perspective(600px) rotateX(2deg);
+}
+
+/* ========================== */
+/* MUSIC REACTIVE GLOW */
+/* ========================== */
+
+@keyframes softPulse {
+  0% { box-shadow: 0 4px 15px rgba(255,255,255,0.2); }
+  50% { box-shadow: 0 8px 30px rgba(255,255,255,0.5); }
+  100% { box-shadow: 0 4px 15px rgba(255,255,255,0.2); }
+}
+
+body.ndn-dark.music-active #messages li.sent {
+  animation: softPulse 1.5s infinite;
+}
+
+body.ndn-dark.music-active #messages li.received {
+  animation: softPulse 1.5s infinite;
+}

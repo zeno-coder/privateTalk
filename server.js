@@ -135,6 +135,14 @@ socket.on("ndn ready", () => {
   });
 
 });
+// 🌑 DARK MODE EVENTS
+socket.on("ndn dark", ({ room }) => {
+  io.to(room).emit("ndn dark");
+});
+
+socket.on("ndn return", ({ room }) => {
+  io.to(room).emit("ndn return");
+});
   // ===== Admin wallpaper upload =====
 socket.on("set wallpaper", (data) => {
   const username = connectedUsers.get(socket.id);
