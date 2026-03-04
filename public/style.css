@@ -1039,3 +1039,18 @@ body.ndn-dark.music-active #messages li.sent {
 body.ndn-dark.music-active #messages li.received {
   animation: softPulse 1.5s infinite;
 }
+/* ===================================== */
+/* 🌑 DARK MODE — FIX REPLY PREVIEW */
+/* ===================================== */
+
+body.ndn-dark .reply-sent,
+body.ndn-dark .reply-received {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-left: 2px solid #ff00aa !important;
+  color: #ffffff !important;
+  font-size: 11px;
+  padding: 3px 6px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  opacity: 0.85;
+}

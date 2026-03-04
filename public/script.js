@@ -1,25 +1,13 @@
-// script.js - full restored and fixed version
-
 const socket = io();
-
 document.addEventListener("DOMContentLoaded", () => {
-
-  /* ==========================
-     Elements & globals
-     ========================== */
-  // Main UI elements
   const form = document.getElementById("form");
   const input = document.getElementById("input");
   const messages = document.getElementById("messages");
   const recordBtn = document.getElementById("record-btn");
   const typingIndicator = document.getElementById("typing-indicator");
-
-  // Reply bar (WhatsApp-style)
   const replyBar = document.getElementById("reply-bar");
   const repliedMessageText = document.getElementById("replied-message-text");
   const cancelReplyBtn = document.getElementById("cancel-reply");
-
-  // Music & controls
   const musicToggleLabel = document.getElementById("toggle-music-label");
   const musicToggle = document.getElementById("toggle-music");
   const musicController = document.getElementById("music-controller");
@@ -27,15 +15,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const playPauseBtn = document.getElementById("play-pause");
   const nextBtn = document.getElementById("next-track");
   const prevBtn = document.getElementById("prev-track");
-
-  // Effects & UI toggles
   const menuBtn = document.getElementById("menu-btn");
   const effectSwitches = document.getElementById("effect-switches");
-
-  // Other
   const lightningContainer = document.getElementById("lightning-container");
   const flashOverlay = document.getElementById("flash-overlay");
- // ===== Media Elements =====
   const mediaBtn = document.getElementById("media-btn");
   const imageInput = document.getElementById("image-input");
   const imagePreview = document.getElementById("image-preview");
@@ -46,9 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const imageModal = document.getElementById("image-modal");
   const modalImage = document.getElementById("modal-image");
   const closeImageBtn = document.getElementById("close-image");
-
-
-  // State
   let username = "";
   let messageCounter = 0;
   let isTempAdmin = false;
@@ -69,8 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let isRecording = false;
   let canceled = false;
   let selectedImageBuffer = null;
-
-/*Media deleting shit */
 function openImageModal(src) {
   modalImage.src = src;
   imageModal.classList.remove("hidden");
@@ -82,8 +60,6 @@ if (closeImageBtn) {
     imageModal.classList.add("hidden");
   });
 }
-
-// close on background click
 if (imageModal) {
   imageModal.addEventListener("click", (e) => {
     if (e.target === imageModal) {
@@ -92,19 +68,13 @@ if (imageModal) {
     }
   });
 }
-//Wallpaper NiggerS
 function applyCustomWallpaper(url) {
   if (!chatContainer) return;
-
   chatContainer.style.backgroundImage = `url('${url}')`;
   chatContainer.style.backgroundSize = "cover";
   chatContainer.style.backgroundPosition = "center";
   chatContainer.style.backgroundRepeat = "no-repeat";
 }
-
-  /* ==========================
-     Music list (unchanged)
-     ========================== */
   const musicUrls = [
     "https://files.catbox.moe/x4wwty.mp4",
     "https://files.catbox.moe/dr6g3i.mp4",
@@ -164,10 +134,6 @@ function applyCustomWallpaper(url) {
     "https://files.catbox.moe/z007p2.mp4"
    
   ];
-
-  /* ==========================
-     Music helpers
-     ========================== */
   function playTrack(index) {
     if (currentAudio) currentAudio.pause();
     currentTrackIndex = index % musicUrls.length;
@@ -181,22 +147,14 @@ function applyCustomWallpaper(url) {
     };
   }
   function syncPlay(startTime) {
-
   if (currentAudio) currentAudio.pause();
-
   currentAudio = new Audio(musicUrls[currentTrackIndex]);
   currentAudio.volume = 0.25;
-
-  // calculate delay for sync
   const delay = (Date.now() - startTime) / 1000;
-
-  // prevent negative delay
   currentAudio.currentTime = delay > 0 ? delay : 0;
-
   currentAudio.play().catch(err => {
     console.log("Autoplay blocked:", err);
   });
-
   trackNameSpan.textContent = `Track ${currentTrackIndex + 1}`;
 }
   function startMusic() {
@@ -209,7 +167,6 @@ function applyCustomWallpaper(url) {
     if (currentAudio) currentAudio.pause();
     if (musicController) musicController.style.display = "none";
   }
-
   if (typeof RENDER_MUSIC_ENABLED !== "undefined" && RENDER_MUSIC_ENABLED === "true") {
     if (musicToggleLabel) musicToggleLabel.style.display = "flex";
     if (musicToggle) musicToggle.addEventListener("change", () => {
@@ -219,7 +176,6 @@ function applyCustomWallpaper(url) {
     if (musicToggleLabel) musicToggleLabel.style.display = "none";
     musicEnabled = false;
   }
-
   if (playPauseBtn) playPauseBtn.addEventListener("click", () => {
     if (!currentAudio) playTrack(currentTrackIndex);
     else if (currentAudio.paused) currentAudio.play();
@@ -227,87 +183,55 @@ function applyCustomWallpaper(url) {
   });
   if (nextBtn) nextBtn.addEventListener("click", () => { currentTrackIndex = (currentTrackIndex + 1) % musicUrls.length; playTrack(currentTrackIndex); });
   if (prevBtn) prevBtn.addEventListener("click", () => { currentTrackIndex = (currentTrackIndex - 1 + musicUrls.length) % musicUrls.length; playTrack(currentTrackIndex); });
-  //Some admin Shits
   let pendingNDNStart = null;
   let ndnMode = false;
 socket.on("ndn start", ({ trackIndex }) => {
-
   ndnMode = true;
   currentTrackIndex = trackIndex;
-
   if (musicController) musicController.style.display = "flex";
-
-  // DO NOT PLAY YET
   pendingNDNStart = true;
-
 });
 socket.on("ndn jump", ({ trackIndex, startTime }) => {
-
   ndnMode = true;
   currentTrackIndex = trackIndex;
-
   if (musicController) musicController.style.display = "flex";
-
   if (isAdminUser()) {
     syncPlay(startTime);
   } else {
     pendingNDNStart = { startTime };
   }
-
 });
-
 socket.on("ndn stop", () => {
-
   ndnMode = false;
   pendingNDNStart = null;
-
   if (currentAudio) {
     currentAudio.pause();
     currentAudio.currentTime = 0;
   }
-
   if (musicController) {
     musicController.style.display = "none";
   }
-
 });
-// ===============================
-// 🌑 DARK MODE SYSTEM
-// ===============================
-
 let darkModeActive = false;
-
 socket.on("ndn dark", () => {
-
   darkModeActive = true;
-
   document.body.classList.add("ndn-dark");
-
   const chatContainer = document.querySelector(".chat-container");
   if (chatContainer) {
     chatContainer.style.backgroundImage = "none";
   }
-
 });
-
 socket.on("ndn return", () => {
-
   darkModeActive = false;
-
   document.body.classList.remove("ndn-dark");
   document.body.classList.remove("music-active");
-
 });
-  /* ==========================
-     Active users & UI helpers
-     ========================== */
   socket.on("update users", (users) => {
     if (window.innerWidth >= 600) {
       activeUsers = new Set(users);
       updatePCActiveUsersList();
     }
   });
-
   function updatePCActiveUsersList() {
     const usersList = document.getElementById("users-list");
     if (!usersList) return;
@@ -319,7 +243,6 @@ socket.on("ndn return", () => {
       usersList.appendChild(li);
     });
   }
-
   window.joinChat = function(name) {
     if (!name) return alert("Please enter your name");
     username = name;
@@ -329,30 +252,21 @@ socket.on("ndn return", () => {
     }
     socket.emit("new user", username);
   };
-  // ==========================
-// Admin status listener
-// ==========================
 socket.on("admin status", ({ type, by }) => {
-
   const isRealAdmin = ["thejus", "Thejus", "THEJUS"].includes(username);
-
   if (type === "promoted") {
     if (!isRealAdmin) {
       isTempAdmin = true;
       showMobileNotification("You are now temporary admin", "");
     }
   }
-
   if (type === "demoted") {
     if (!isRealAdmin) {
       isTempAdmin = false;
       showMobileNotification("Temporary admin removed", "");
     }
   }
-
 });
-
-    /*Media: open file picker */
   if (mediaBtn && imageInput) {
    mediaBtn.addEventListener("click", (e) => {
   e.stopPropagation(); // prevents ghost bubbling
@@ -360,26 +274,21 @@ socket.on("admin status", ({ type, by }) => {
 });
 
   }
-// Mobile fix for media button
 if (mediaBtn && imageInput) {
   mediaBtn.addEventListener("touchend", function(e) {
     e.preventDefault();
     imageInput.click();
   }, { passive: false });
 }
-
-  /* Media: image select & preview*/
   if (imageInput) {
     imageInput.addEventListener("change", () => {
       const file = imageInput.files[0];
       if (!file) return;
-
       if (!file.type.startsWith("image/")) {
         alert("Only images are allowed");
         imageInput.value = "";
         return;
       }
-
       const reader = new FileReader();
       reader.onload = () => {
         selectedImageBuffer = reader.result;
@@ -389,7 +298,6 @@ if (mediaBtn && imageInput) {
       reader.readAsDataURL(file);
     });
   }
-  /* Media: cancel image*/
   if (cancelImageBtn) {
     cancelImageBtn.addEventListener("click", () => {
       imagePreview.classList.add("hidden");
@@ -399,62 +307,44 @@ if (mediaBtn && imageInput) {
       viewOnceCheckbox.checked = false;
     });
   }
-  /* Media: send image */
  if (sendImageBtn) {
   sendImageBtn.addEventListener("click", () => {
     const file = imageInput.files[0];
     if (!file) return;
-
     const reader = new FileReader();
-
     reader.onload = function () {
       socket.emit("send image", {
         buffer: reader.result,
         viewOnce: viewOnceCheckbox.checked
       });
-
-      // reset UI
       imagePreview.classList.add("hidden");
       previewImg.src = "";
       imageInput.value = "";
       selectedImageBuffer = null;
       viewOnceCheckbox.checked = false;
     };
-
     reader.readAsArrayBuffer(file);
   });
 }
-
-
-  /*Append message (handles replies) */
-
   function appendMessage(msgObj, type) {
     const li = document.createElement("li");
     li.classList.add(type);
-    //ADDING METADATA TO EVERY MESG
     li.dataset.user = msgObj.user;
     li.dataset.text = msgObj.text || "";
     li.dataset.id = msgObj.id || (messageCounter++).toString(); // unique ID
-
-
-    // If message has a replied preview
    let replyHtml = "";
 if (msgObj.replied) {
   let preview = String(msgObj.replied.text || "").trim();
   if (preview.length > 120) preview = preview.slice(0, 117) + "...";
-
   const replyClass = type === "sent" ? "reply-sent" : "reply-received";
-
   replyHtml = `
     <div class="replied-preview ${replyClass}">
       <strong>${escapeHtml(msgObj.replied.user)}:</strong> ${escapeHtml(preview)}
     </div>`;
 }
-
 const time = msgObj.ts
   ? new Date(msgObj.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
   : "";
-
 li.innerHTML = `
   ${replyHtml}
   <strong>${escapeHtml(msgObj.user)}:</strong> ${escapeHtml(msgObj.text)}
@@ -463,8 +353,6 @@ li.innerHTML = `
    ${type === "sent" ? `<span class="msg-tick single">✓</span>` : ""}
   </div>
 `;
-
-    // Effects: glow & heart ripple
     const glowToggle = document.getElementById("toggle-glow");
     if (glowToggle && glowToggle.checked) {
       li.classList.add("glow");
@@ -477,12 +365,9 @@ li.innerHTML = `
       li.appendChild(heart);
       setTimeout(() => heart.remove(), 700);
     }
-
     messages.appendChild(li);
     messages.scrollTop = messages.scrollHeight;
   }
-
-  // safe HTML escape helper
   function escapeHtml(str) {
     if (!str && str !== 0) return "";
     return String(str)
@@ -492,79 +377,55 @@ li.innerHTML = `
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
   }
-
-  /* ==========================
-   Sending & receiving messages
-   ========================== */
-
-// SEND
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   if (!input.value || !username) return;
-
   const text = input.value.trim();
-// ADMIN MUSIC COMMAND (NDN)
 if (text.toLowerCase().startsWith("ndn") && isAdminUser()) {
-
   socket.emit("ndn command", {
     text
   });
-
   input.value = "";
   updateRecordBtn();
-  return; // ❌ do NOT send as chat message
+  return; 
 }
-  // ADMIN COMMAND: return background
 if (text === "returnbg" && isAdminUser()) {
   socket.emit("return bg");
   input.value = "";
   updateRecordBtn(); // restore mic icon
-  return; // ❌ DO NOT SEND MESSAGE
+  return; 
 }
-// ADMIN COMMAND: clear chat
 if (text === "cls" && isAdminUser()) {
   socket.emit("clear chat");
   input.value = "";
   updateRecordBtn();
   return; // ❌ do NOT send message
 }
-// ADMIN COMMAND: promote
 if (text === "promote" && isAdminUser()) {
   socket.emit("admin command", "promote");
   input.value = "";
   updateRecordBtn();
   return;
 }
-
-// ADMIN COMMAND: demote
 if (text === "demote" && isAdminUser()) {
   socket.emit("admin command", "demote");
   input.value = "";
   updateRecordBtn();
   return;
 }
-
-
-  // *** FIXED: include an id and ts when sending a chat message ***
   const msg = {
     user: username,
     text,
     id: (messageCounter++).toString(),
     ts: Date.now()
   };
-
-  // If replying to a message
   if (repliedMessage) {
-    // *** FIXED: include replied message id so delete can target it exactly ***
     msg.replied = {
       user: repliedMessage.user,
       text: repliedMessage.text,
       id: repliedMessage.id || null
     };
   }
-
-  /* 
-        DELETE COMMAND ("dlt") */
   if (text === "dlt" && repliedMessage) {
     socket.emit("delete message", {
         targetUser: repliedMessage.user,
@@ -573,115 +434,59 @@ if (text === "demote" && isAdminUser()) {
         commandUser: username,
         commandText: "dlt"
     });
-
-
-    // Clear reply UI
     repliedMessage = null;
     if (replyBar) replyBar.style.display = "none";
-
-    // DO NOT append "dlt" locally
     input.value = "";
     updateRecordBtn();
     return;
   }
-
-  // Normal message
   socket.emit("chat message", msg);
   appendMessage(msg, "sent");
-
-  // Reset UI
   repliedMessage = null;
   if (replyBar) replyBar.style.display = "none";
   input.value = "";
   socket.emit("stop typing", username);
   updateRecordBtn();
 });
-
-// RECEIVE
 socket.on("chat message", (msg) => {
-  // 🌑 DARK MODE COMMANDS
-if (msg.user === username) {
-
-  const text = msg.text?.trim().toLowerCase();
-
-  if (text === "ndn dark") {
-    socket.emit("ndn dark", { room: roomCode });
-    return;
-  }
-
-  if (text === "ndn return") {
-    socket.emit("ndn return", { room: roomCode });
-    return;
-  }
-}
-
   const isMine = msg.user === username;
-
   if (isMine) {
     appendMessage(msg, "sent");
     return;
   }
-
   appendMessage(msg, "received");
-
-  // confirm delivered
   socket.emit("message-delivered", {
     messageId: msg.id
   });
-
-  // confirm seen immediately
   socket.emit("message-seen", {
     messageId: msg.id
   });
-
 });
-//double tick
 socket.on("message-delivered", ({ messageId }) => {
-
   const msg = document.querySelector(`li[data-id="${messageId}"]`);
   if (!msg) return;
-
   const tick = msg.querySelector(".msg-tick");
   if (!tick) return;
-
   tick.textContent = "✓✓";   // double tick
-  // DO NOT add .seen here
-
 });
-
-// blue tick
 socket.on("message-seen", ({ messageId }) => {
-
   const msg = document.querySelector(`li[data-id="${messageId}"]`);
   if (!msg) return;
-
   const tick = msg.querySelector(".msg-tick");
   if (!tick) return;
-
 tick.textContent = "✓✓";
 tick.classList.remove("single");
 tick.classList.add("seen");
-
 });
-
-
-  /* Media: receive image notice */
-/* Media: receive image notice */
 socket.on("new image", ({ mediaId, viewOnce, sender }) => {
-
   const li = document.createElement("li");
-
-  // ✅ Decide bubble side
   if (sender === username) {
     li.className = "sent image-message";
   } else {
     li.className = "received image-message";
   }
-
   li.dataset.mediaId = mediaId;
   li.dataset.viewOnce = viewOnce ? "true" : "false";
-
-  // Keep delete compatibility
   li.dataset.user = sender;
   li.dataset.text = "image";
   li.dataset.id = mediaId;

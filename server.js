@@ -113,7 +113,15 @@ io.on("connection", (socket) => {
   else if (cmd === "stop") {
     io.to(roomId).emit("ndn stop");
   }
+  // DARK MODE
+else if (cmd === "dark") {
+  io.to(roomId).emit("ndn dark");
+}
 
+// RETURN NORMAL MODE
+else if (cmd === "return") {
+  io.to(roomId).emit("ndn return");
+}
   // DIRECT TRACK JUMP (ndn 5)
   else if (!isNaN(cmd)) {
 
