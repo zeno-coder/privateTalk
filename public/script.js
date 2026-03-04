@@ -223,8 +223,17 @@ socket.on("ndn dark", () => {
 });
 socket.on("ndn return", () => {
   darkModeActive = false;
+
   document.body.classList.remove("ndn-dark");
   document.body.classList.remove("music-active");
+
+  if (!chatContainer) return;
+
+  // 🟢 If no custom wallpaper, restore slideshow instantly
+  if (!sessionStorage.getItem("customWallpaper")) {
+    chatContainer.style.backgroundImage = `url('${bgImages[bgIndex]}')`;
+    chatContainer.classList.remove("fade-bg");
+  }
 });
   socket.on("update users", (users) => {
     if (window.innerWidth >= 600) {
