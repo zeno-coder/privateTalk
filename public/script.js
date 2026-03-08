@@ -1350,26 +1350,18 @@ function triggerRomanticHeart(){
 
   const canvas = document.getElementById("heartCanvas");
   const ctx = canvas.getContext("2d");
-
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-
   canvas.style.opacity = 1;
-
   const centerX = canvas.width/2;
   const centerY = canvas.height/2;
-
   const particles = [];
   const heartPoints = [];
-
   const scale = 10;
   let snap = false;
-
-  // Generate heart shape points
   for(let t=0; t<Math.PI*2; t+=0.05){
-
-    const x = 16*Math.pow(Math.sin(t),3);
-    const y = 13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t);
+  const x = 16*Math.pow(Math.sin(t),3);
+  const y = 13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t);
 
     heartPoints.push({
       x: centerX + x*scale,
@@ -1377,11 +1369,8 @@ function triggerRomanticHeart(){
     });
 
   }
-
-  // Create particles
   heartPoints.forEach(p=>{
-
-    particles.push({
+      particles.push({
       x: Math.random()*canvas.width,
       y: Math.random()*canvas.height,
       tx: p.x,
@@ -1399,25 +1388,18 @@ function triggerRomanticHeart(){
     particles.forEach(p=>{
 
       if(!snap){
-
-        // merge motion
         p.vx += (p.tx - p.x)*0.02;
         p.vy += (p.ty - p.y)*0.02;
 
       }else{
-
-        // snap explosion
         p.vx += (Math.random()-0.5)*0.8;
         p.vy += (Math.random()-0.5)*0.8;
 
       }
-
       p.vx *= 0.92;
       p.vy *= 0.92;
-
       p.x += p.vx;
       p.y += p.vy;
-
       ctx.beginPath();
       ctx.arc(p.x,p.y,2.2,0,Math.PI*2);
       ctx.fillStyle = "#ff4da6";
@@ -1432,13 +1414,9 @@ function triggerRomanticHeart(){
   }
 
   animate();
-
-  // After heart forms → start snap
   setTimeout(()=>{
     snap = true;
   },1800);
-
-  // Fade canvas after snap
   setTimeout(()=>{
     canvas.style.opacity = 0;
   },3000);

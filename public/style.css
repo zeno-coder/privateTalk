@@ -1064,3 +1064,45 @@ body.ndn-dark .reply-received {
   opacity:0;
   transition:opacity .4s ease;
 }
+/* DARK MODE INPUT BAR */
+.ndn-dark #form{
+  background: linear-gradient(
+    145deg,
+    rgba(25,25,35,0.9),
+    rgba(15,15,25,0.9)
+  );
+
+  border-radius: 28px;
+
+  backdrop-filter: blur(14px);
+
+  border: 1px solid rgba(255,255,255,0.06);
+
+  box-shadow:
+    0 8px 25px rgba(0,0,0,0.6),
+    inset 0 0 10px rgba(255,255,255,0.05);
+
+  padding: 6px;
+}
+/* DARK MODE TEXT INPUT */
+.ndn-dark #input{
+  background: transparent;
+  color: #ffffff;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  padding: 10px 12px;
+}
+.ndn-dark #input::placeholder{
+  color: rgba(255,255,255,0.45);
+}
+.ndn-dark #media-btn,
+.ndn-dark #record-btn{
+  background: rgba(255,255,255,0.05);
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 6px rgba(255,255,255,0.05),
+    0 0 10px rgba(0,0,0,0.6);
+}
