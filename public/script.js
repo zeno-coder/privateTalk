@@ -76,6 +76,8 @@ function applyCustomWallpaper(url) {
   chatContainer.style.backgroundRepeat = "no-repeat";
 }
   const musicUrls = [
+    "https://files.catbox.moe/mi9igu.mp4",
+    "https://files.catbox.moe/a4jv43.mp4",
     "https://files.catbox.moe/x4wwty.mp4",
     "https://files.catbox.moe/dr6g3i.mp4",
     "https://files.catbox.moe/hic3ht.mp4",
@@ -130,8 +132,9 @@ function applyCustomWallpaper(url) {
     "https://files.catbox.moe/sf6yg5.mp4",
     "https://files.catbox.moe/utdobw.mp4",
     "https://files.catbox.moe/x0t9pc.mp4",
-    "https://files.catbox.moe/mmsap4.mp3",
-    "https://files.catbox.moe/z007p2.mp4"
+    "https://files.catbox.moe/prw3g6.mp4",
+    "https://files.catbox.moe/j2ncnz.mp4",
+    "https://files.catbox.moe/o1gvpb.mp4"
    
   ];
   function playTrack(index) {
@@ -220,6 +223,7 @@ socket.on("ndn dark", () => {
   if (chatContainer) {
     chatContainer.style.backgroundImage = "none";
   }
+ triggerRomanticHeart();
 });
 socket.on("ndn return", () => {
   darkModeActive = false;
@@ -1342,7 +1346,104 @@ if (chatMain) {
     handleAdminTripleTap();
   }, { passive: true });
 }
+function triggerRomanticHeart(){
 
+  const canvas = document.getElementById("heartCanvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  canvas.style.opacity = 1;
+
+  const centerX = canvas.width/2;
+  const centerY = canvas.height/2;
+
+  const particles = [];
+  const heartPoints = [];
+
+  const scale = 10;
+  let snap = false;
+
+  // Generate heart shape points
+  for(let t=0; t<Math.PI*2; t+=0.05){
+
+    const x = 16*Math.pow(Math.sin(t),3);
+    const y = 13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t);
+
+    heartPoints.push({
+      x: centerX + x*scale,
+      y: centerY - y*scale
+    });
+
+  }
+
+  // Create particles
+  heartPoints.forEach(p=>{
+
+    particles.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      tx: p.x,
+      ty: p.y,
+      vx:0,
+      vy:0
+    });
+
+  });
+
+  function animate(){
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    particles.forEach(p=>{
+
+      if(!snap){
+
+        // merge motion
+        p.vx += (p.tx - p.x)*0.02;
+        p.vy += (p.ty - p.y)*0.02;
+
+      }else{
+
+        // snap explosion
+        p.vx += (Math.random()-0.5)*0.8;
+        p.vy += (Math.random()-0.5)*0.8;
+
+      }
+
+      p.vx *= 0.92;
+      p.vy *= 0.92;
+
+      p.x += p.vx;
+      p.y += p.vy;
+
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,2.2,0,Math.PI*2);
+      ctx.fillStyle = "#ff4da6";
+      ctx.shadowColor = "#ff4da6";
+      ctx.shadowBlur = 12;
+      ctx.fill();
+
+    });
+
+    requestAnimationFrame(animate);
+
+  }
+
+  animate();
+
+  // After heart forms → start snap
+  setTimeout(()=>{
+    snap = true;
+  },1800);
+
+  // Fade canvas after snap
+  setTimeout(()=>{
+    canvas.style.opacity = 0;
+  },3000);
+
+}
 
 
   /* ==========================
