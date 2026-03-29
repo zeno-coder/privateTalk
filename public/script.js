@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let username = "";
   let messageCounter = 0;
   let isTempAdmin = false;
-  let repliedMessage = null; // { user, text } when replying
+  let repliedMessage = null; 
   let musicEnabled = false;
   let currentTrackIndex = 0;
   let currentAudio = null;
@@ -232,8 +232,6 @@ socket.on("ndn return", () => {
   document.body.classList.remove("music-active");
 
   if (!chatContainer) return;
-
-  // 🟢 If no custom wallpaper, restore slideshow instantly
   if (!sessionStorage.getItem("customWallpaper")) {
     chatContainer.style.backgroundImage = `url('${bgImages[bgIndex]}')`;
     chatContainer.classList.remove("fade-bg");
@@ -282,7 +280,7 @@ socket.on("admin status", ({ type, by }) => {
 });
   if (mediaBtn && imageInput) {
    mediaBtn.addEventListener("click", (e) => {
-  e.stopPropagation(); // prevents ghost bubbling
+  e.stopPropagation(); 
   imageInput.click();
 });
 
@@ -344,7 +342,7 @@ if (mediaBtn && imageInput) {
     li.classList.add(type);
     li.dataset.user = msgObj.user;
     li.dataset.text = msgObj.text || "";
-    li.dataset.id = msgObj.id || (messageCounter++).toString(); // unique ID
+    li.dataset.id = msgObj.id || (messageCounter++).toString(); 
    let replyHtml = "";
 if (msgObj.replied) {
   let preview = String(msgObj.replied.text || "").trim();
@@ -412,7 +410,7 @@ if (text === "cls" && isAdminUser()) {
   socket.emit("clear chat");
   input.value = "";
   updateRecordBtn();
-  return; // ❌ do NOT send message
+  return; 
 }
 if (text === "promote" && isAdminUser()) {
   socket.emit("admin command", "promote");
@@ -519,8 +517,6 @@ socket.on("new image", ({ mediaId, viewOnce, sender }) => {
   messages.scrollTop = messages.scrollHeight;
 });
 
-
-   /* Media: receive image data */
 socket.on("image data", ({ mediaId, buffer }) => {
   const msg = document.querySelector(
     `.image-message[data-media-id="${mediaId}"]`
@@ -541,7 +537,6 @@ socket.on("image expired", (mediaId) => {
 
   if (!msg) return;
 
-  // WhatsApp-style behavior
   msg.innerHTML = "<em>📷 Photo viewed</em>";
   msg.classList.add("expired");
 });
@@ -551,108 +546,67 @@ socket.on("wallpaper updated", ({ buffer, mime }) => {
   const url = URL.createObjectURL(blob);
 
   applyCustomWallpaper(url);
-
-  // 🔐 TEMPORARY — browser-session only
   sessionStorage.setItem("customWallpaper", url);
 });
-//Reset wallpapers
+
 socket.on("reset wallpaper", () => {
-  // Clear custom wallpaper
   sessionStorage.removeItem("customWallpaper");
-
   if (!chatContainer) return;
-
-  // Reset to slideshow start
   bgIndex = 0;
   chatContainer.style.backgroundImage = `url('${bgImages[0]}')`;
-
-  // Slideshow resumes automatically
 });
-//Clearchat();
 socket.on("clear chat", () => {
   const items = document.querySelectorAll("#messages li");
-
   items.forEach((li, index) => {
-    // stagger animation slightly for beauty ✨
     setTimeout(() => {
       animateDeleteMessage(li);
     }, index * 25);
   });
 });
-
-
-
-/* ==========================
-   Animate message delete (glowing dust)
-========================== */
 function animateDeleteMessage(li) {
   const rect = li.getBoundingClientRect();
   const count = 50; // increased number of particles
   const centerX = rect.left + rect.width / 2;
   const centerY = rect.top + rect.height / 2;
-
   for (let i = 0; i < count; i++) {
     const particle = document.createElement("div");
     particle.classList.add("glow-particle");
-
-    // Random spread and velocity
     const angle = Math.random() * 2 * Math.PI;
     const radius = Math.random() * 80 + 20; // distance to fly
     const x = Math.cos(angle) * radius;
     const y = Math.sin(angle) * radius;
-
     particle.style.setProperty("--x", x + "px");
     particle.style.setProperty("--y", y + "px");
     particle.style.left = centerX + "px";
     particle.style.top = centerY + "px";
     particle.style.animationDuration = (Math.random() * 0.8 + 0.6) + "s"; // vary speed
-
     document.body.appendChild(particle);
-
-    // remove after animation
     setTimeout(() => particle.remove(), 1200);
   }
-
-  // fade out and shrink the message bubble
   li.style.transition = "opacity 0.6s, transform 0.6s";
   li.style.opacity = 0;
   li.style.transform = "scale(0.3) rotate(" + (Math.random()*30-15) + "deg)";
   setTimeout(() => li.remove(), 600);
 }
-
-/*Handle delete command with animation */
 socket.on("delete message", (data) => {
   const items = document.querySelectorAll("#messages li");
-
   items.forEach(li => {
     const u = li.getAttribute("data-user");
     const t = li.getAttribute("data-text");
-    const id = li.getAttribute("data-id"); // *** FIXED: read id from element ***
-
-    // Animate the target replied message (match by id first, fallback to user+text)
+    const id = li.getAttribute("data-id"); 
     if (
       id === data.targetId ||
       (u === data.targetUser && t === data.targetText)
     ) {
       animateDeleteMessage(li);
     }
-
-    // Animate the "dlt" command message itself
     if (u === data.commandUser && t === data.commandText) {
       animateDeleteMessage(li);
     }
   });
 });
 
-
-
-
-  /* ==========================
-   Voice recording (fixed)
-   ========================== */
-
 function startRecordingIndicator() {
-  // Optional: show recording UI
   console.log("Recording started...");
 }
 
@@ -668,15 +622,12 @@ async function ensureMediaStream() {
   return mediaStream;
 }
 
-// Helper function to append a voice message to the chat
 function appendVoiceMessage(msg) {
   const li = document.createElement("li");
   li.classList.add(msg.user === username ? "sent" : "received");
-
   li.dataset.user = msg.user;
   li.dataset.text = "voice";
   li.dataset.id = msg.id;
-
   li.innerHTML = `<strong>${escapeHtml(msg.user)}:</strong><br>`;
   const audio = document.createElement("audio");
   audio.controls = true;
@@ -684,7 +635,6 @@ function appendVoiceMessage(msg) {
   audio.preload = "none";
   audio.style.maxWidth = "100%";
   li.appendChild(audio);
-
   messages.appendChild(li);
   messages.scrollTop = messages.scrollHeight;
 }
@@ -692,28 +642,22 @@ function appendVoiceMessage(msg) {
 async function handleStart(e) {
   const slideText = document.getElementById("slideToCancel");
   if (isRecording) return;
-
   isRecording = true;
   canceled = false;
   startX = e.touches ? e.touches[0].clientX : e.clientX;
-
   slideText.classList.add("show");
   startRecordingIndicator();
-
   const stream = await ensureMediaStream();
   audioChunks = [];
   mediaRecorder = new MediaRecorder(stream);
   mediaRecorder.canceled = false;
-
   mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
-
   mediaRecorder.onstart = () => {
     socket.emit("start recording", username);
   };
 
   mediaRecorder.onstop = () => {
     stopRecordingIndicator();
-
     if (!mediaRecorder.canceled) {
       const blob = new Blob(audioChunks, { type: "audio/webm" });
       const reader = new FileReader();
@@ -725,14 +669,12 @@ async function handleStart(e) {
           ts: Date.now()
         };
         socket.emit("voice message", voiceMsg);
-        appendVoiceMessage(voiceMsg); // append locally for sender
+        appendVoiceMessage(voiceMsg); 
       };
       reader.readAsDataURL(blob);
     }
 
     socket.emit("stop recording", username);
-
-    // Reset UI
     recordBtn.textContent = "🎤";
     isRecording = false;
     canceled = false;
@@ -745,7 +687,6 @@ async function handleStart(e) {
 function handleMove(e) {
   const slideText = document.getElementById("slideToCancel");
   if (!isRecording) return;
-
   const currentX = e.touches ? e.touches[0].clientX : e.clientX;
   const diff = startX - currentX;
 
@@ -765,15 +706,11 @@ function handleMove(e) {
 function handleEnd() {
   const slideText = document.getElementById("slideToCancel");
   if (!isRecording) return;
-
   slideText.classList.remove("show", "canceling");
   recordBtn.style.background = "";
-
   if (mediaRecorder && mediaRecorder.state === "recording") {
-    // ✅ Respect cancel
     mediaRecorder.canceled = canceled;
-
-    mediaRecorder.stop(); // triggers onstop
+    mediaRecorder.stop(); 
   } else {
     stopRecordingIndicator();
     recordBtn.textContent = "🎤";
@@ -781,14 +718,10 @@ function handleEnd() {
     canceled = false;
   }
 }
-/* ==========================
-   Mic ↔ Send Button Toggle (FIXED)
-   ========================== */
 
 const holdThreshold = 200; // ms
 let holdTimeout = null;
 let isHold = false;
-
 function updateRecordBtn() {
   if (input.value.trim().length > 0) {
     recordBtn.textContent = "➤";
@@ -798,41 +731,30 @@ function updateRecordBtn() {
     recordBtn.dataset.mode = "mic";
   }
 }
-
-// Initial check
 updateRecordBtn();
-
-// Input listener for toggle
 input.addEventListener("input", updateRecordBtn);
-
-// Click action
 recordBtn.addEventListener("click", (e) => {
   if (recordBtn.dataset.mode === "send") {
-    form.requestSubmit(); // send message
+    form.requestSubmit(); 
   }
 });
 
-// Press & hold voice only in mic mode
 recordBtn.addEventListener("mousedown", (e) => {
   if (recordBtn.dataset.mode !== "mic") return;
   isHold = false;
   holdTimeout = setTimeout(() => {
     isHold = true;
-    handleStart(e); // start recording
+    handleStart(e); 
   }, holdThreshold);
 });
-
 recordBtn.addEventListener("mouseup", () => {
   clearTimeout(holdTimeout);
   if (isHold) handleEnd();
 });
-
 recordBtn.addEventListener("mouseleave", () => {
   clearTimeout(holdTimeout);
   if (isHold) handleEnd();
 });
-
-// Touch support
 recordBtn.addEventListener("touchstart", (e) => {
   if (recordBtn.dataset.mode !== "mic") return;
   isHold = false;
@@ -846,60 +768,42 @@ recordBtn.addEventListener("touchend", () => {
   clearTimeout(holdTimeout);
   if (isHold) handleEnd();
 }, { passive: false });
-// Track mouse movement for slide-to-cancel
 document.addEventListener("mousemove", (e) => {
   if (isRecording) handleMove(e);
 });
-// Mobile / browser autoplay unlock
 input.addEventListener("focus", () => {
-
   if (!pendingNDNStart) return;
-
   syncPlay(pendingNDNStart.startTime);
   pendingNDNStart = null;
-
 });
-
-// Track touch movement for mobile
 document.addEventListener("touchmove", (e) => {
   if (!isRecording) return;
   handleMove(e.touches[0]);
 }, { passive: false });
-
-
-// Reset button when recording ends
 function resetRecordBtn() {
   updateRecordBtn();
   isHold = false;
 }
-// Receiving voice messages from other users
 socket.on("voice message", (msg) => {
   if (msg.user !== username) {
     appendVoiceMessage(msg);
   }
 });
- /*Falling flowers & trail particles*/
   function createFlower() {
     const wrapper = document.createElement("div");
     wrapper.classList.add("flower-wrapper");
-
     const flower = document.createElement("div");
     flower.classList.add("flower");
     flower.innerText = "🌸";
-
     wrapper.style.left = Math.random() * 100 + "vw";
     flower.style.fontSize = (20 + Math.random() * 15) + "px";
-
     const fallDuration = 4 + Math.random() * 3;
     const swayDuration = 2 + Math.random() * 2;
     const rotateDuration = 3 + Math.random() * 4;
-
     wrapper.style.animationDuration = `${fallDuration}s`;
     flower.style.animationDuration = `${swayDuration}s, ${rotateDuration}s`;
-
     wrapper.appendChild(flower);
     document.body.appendChild(wrapper);
-
     const maxDuration = Math.max(fallDuration, swayDuration, rotateDuration);
     setTimeout(() => wrapper.remove(), maxDuration * 1000);
   }
@@ -914,8 +818,6 @@ socket.on("voice message", (msg) => {
       }
     });
   }
-
-  // trail particles
   function createTrail(x, y) {
     const trail = document.createElement("div");
     trail.classList.add("trail-particle");
@@ -928,47 +830,32 @@ socket.on("voice message", (msg) => {
     if (e.buttons) createTrail(e.clientX, e.clientY);
   });
   document.addEventListener("touchmove", (e) => {
-    // do not prevent default globally; only prevented when swipe triggers
     for (let t of e.touches) createTrail(t.clientX, t.clientY);
   }, { passive: true });
-
-  
-  /*Notifications (join/leave) */
-
      let previousUsers = [];
-
 socket.on("update users", (userList) => {
   if (window.innerWidth >= 600) {
-    // Desktop: just update the active users list
     updatePCActiveUsersList(userList);
   } else {
-    // Mobile: detect who joined or left
     const joinedUsers = userList.filter((u) => !previousUsers.includes(u));
     const leftUsers = previousUsers.filter((u) => !userList.includes(u));
-
     joinedUsers.forEach((user) => showMobileNotification(user, "joined"));
     leftUsers.forEach((user) => showMobileNotification(user, "left"));
   }
-
   previousUsers = userList;
 });
 
 function showMobileNotification(uname, action) {
   console.log("MOBILE NOTIFICATION TRIGGERED:", uname, action);
-
   const container = document.getElementById("mobile-user-notifications");
   if (!container) return;
-
   const el = document.createElement("div");
   el.classList.add("mobile-notification");
   el.textContent = `${uname} ${action}`;
-
   container.appendChild(el);
-
   setTimeout(() => el.remove(), 3000);
 }
 
- /*Typing & Recording indicators */
 input.addEventListener("input", () => {
   if (!isTyping) socket.emit("typing", username);
   isTyping = true;
@@ -979,7 +866,6 @@ input.addEventListener("input", () => {
   }, 1000);
 });
 
-// OTHER USERS
 socket.on("typing", user => {
   if (user !== username) {
     usersTyping.add(user);
@@ -1029,7 +915,6 @@ function updateIndicator() {
   }
 }
 
-  /*Background slideshow (unchanged)*/
   const bgImages = [
   "/assets/l1.jpg",
   "/assets/l2.jpg",
@@ -1082,7 +967,6 @@ function updateIndicator() {
   if (savedWallpaper) {
     applyCustomWallpaper(savedWallpaper);
   }
-  // else → slideshow runs automatically
 });
 
   wallpaperInput.addEventListener("change", () => {
@@ -1107,13 +991,11 @@ function changeBackground() {
   if (darkModeActive) return;
   if (!chatContainer) return;
 
-  // ⛔ Stop slideshow if custom wallpaper is active
   if (sessionStorage.getItem("customWallpaper")) return;
 
   bgIndex = (bgIndex + 1) % bgImages.length;
   chatContainer.style.setProperty("--bg-next", `url('${bgImages[bgIndex]}')`);
   chatContainer.classList.add("fade-bg");
-
   setTimeout(() => {
     chatContainer.style.backgroundImage = `url('${bgImages[bgIndex]}')`;
     chatContainer.classList.remove("fade-bg");
@@ -1121,10 +1003,6 @@ function changeBackground() {
 }
 
   setInterval(changeBackground, 25000);
-
-  /* ==========================
-     Menu toggle
-     ========================== */
   if (menuBtn && effectSwitches) {
     menuBtn.addEventListener("click", () => {
       effectSwitches.classList.toggle("show");
@@ -1136,48 +1014,33 @@ function changeBackground() {
     });
   }
 
-  /* ==========================
-     Swipe / Drag to reply (works for mobile, desktop, and click)
-     - triggers the WhatsApp-style reply bar above input
-     ========================== */
   (function setupReplyTriggers() {
     const container = messages;
     if (!container) return;
-
     let startX = 0;
     let startY = 0;
     const swipeThreshold = 80;
     let isMouseDown = false;
-
-    // helper to extract clean text and user from li
     function extractFromLi(li) {
       const strong = li.querySelector("strong");
       const user = strong ? (strong.textContent.replace(/:$/, "").trim()) : "";
-      // get message text by removing strong text from innerText (safe fallback)
       let full = li.innerText || "";
       if (strong) {
         const strongText = strong.textContent;
-        // remove only the first occurrence of strongText
         full = full.replace(new RegExp("^" + escapeRegExp(strongText)), "").trim();
       }
       return { user, text: full };
     }
-
     function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-
-    // main trigger that uses our triggerReply function (defined below)
     function handleTrigger(targetLi) {
       if (!targetLi) return;
       triggerReply(targetLi);
     }
-
-    // touch events
     container.addEventListener("touchstart", (e) => {
       const touch = e.touches[0];
       startX = touch.clientX;
       startY = touch.clientY;
     }, { passive: true });
-
     container.addEventListener("touchmove", (e) => {
       const touch = e.touches[0];
       const deltaX = touch.clientX - startX;
@@ -1186,7 +1049,6 @@ function changeBackground() {
       if (deltaX > swipeThreshold) {
         const target = e.target.closest("li");
         if (target) {
-          // prevent scrolling only when we actually trigger reply
           e.preventDefault();
           handleTrigger(target);
           startX = touch.clientX;
@@ -1194,7 +1056,6 @@ function changeBackground() {
       }
     }, { passive: false });
 
-    // mouse events for desktop drag
     container.addEventListener("mousedown", (e) => { isMouseDown = true; startX = e.clientX; startY = e.clientY; });
     container.addEventListener("mousemove", (e) => {
       if (!isMouseDown) return;
@@ -1211,62 +1072,37 @@ function changeBackground() {
     });
     container.addEventListener("mouseup", () => { isMouseDown = false; });
     container.addEventListener("mouseleave", () => { isMouseDown = false; });
-
-    // simple click/tap to reply as well (optional, like WhatsApp long-press)
     container.addEventListener("click", (e) => {
       const target = e.target.closest("li");
-      // if user tapped a sent/received bubble quickly, open the reply bar (makes UX easier)
       if (target) {
-        // small delay to differentiate from drag/swipe
         setTimeout(() => {
-          // require the user to hold ctrl/cmd for click-reply on desktop? No — we'll allow simple click.
-          // If you prefer to require modifier, check e.ctrlKey / e.metaKey here.
           triggerReply(target);
         }, 100);
       }
     });
-
-    // actual logic that fills reply UI
     function triggerReply(messageEl) {
       if (!messageEl || !username) {
-        // if user hasn't joined, show a brief hint
         if (!username) {
-          // small toast style mobile notification
           showMobileNotification("Please join chat first", "");
         }
         return;
       }
-
 const user = messageEl.dataset.user;
 const full = messageEl.dataset.text;
-
-      // save replied message object
       repliedMessage = {
     user,
     text: full,
-    id: messageEl.dataset.id   // ADD THIS
+    id: messageEl.dataset.id  
 };
-
-      // show reply bar
       if (repliedMessageText) repliedMessageText.textContent = `${user}: ${full}`;
       if (replyBar) replyBar.style.display = "flex";
-
-      // highlight
       messageEl.classList.add("replying");
       setTimeout(() => messageEl.classList.remove("replying"), 400);
-
-      // focus input
       input.focus();
     }
-
-    // expose triggerReply to outer scope (used elsewhere earlier)
     window.triggerReply = (el) => triggerReply(el);
-
   })();
 
-  /* ==========================
-     Reply cancel button
-     ========================== */
   if (cancelReplyBtn) {
     cancelReplyBtn.addEventListener("click", () => {
       repliedMessage = null;
@@ -1275,9 +1111,6 @@ const full = messageEl.dataset.text;
     });
   }
 
-  /* ==========================
-     Utility helpers
-     ========================== */
   function showMobileNotification(usernameText, action) {
     // reusing earlier function behavior
     if (!usernameText) return;
@@ -1299,55 +1132,38 @@ const full = messageEl.dataset.text;
     container.appendChild(el);
     setTimeout(() => el.remove(), 2000);
   }
-  //ADMIN CHECK LOGIC
  function isAdminUser() {
   const isRealAdmin = ["thejus", "Thejus", "THEJUS"].includes(username);
   return isRealAdmin || isTempAdmin;
 }
-
-/* ==========================
-   Admin Wallpaper: Triple Tap / Click
-   ========================== */
-
 let tapCount = 0;
 let tapTimer = null;
 const TAP_WINDOW = 600; // ms
-
 function handleAdminTripleTap() {
   if (!isAdminUser()) return;
-
   tapCount++;
-
   if (tapCount === 1) {
     tapTimer = setTimeout(() => {
       tapCount = 0;
       tapTimer = null;
     }, TAP_WINDOW);
   }
-
   if (tapCount === 3) {
     clearTimeout(tapTimer);
     tapCount = 0;
     tapTimer = null;
-
-    // ✅ User-initiated action (browser-safe)
     wallpaperInput.click();
   }
 }
-
-// Desktop
 if (chatMain) {
   chatMain.addEventListener("click", handleAdminTripleTap);
 }
-
-// Mobile
 if (chatMain) {
   chatMain.addEventListener("touchend", function() {
     handleAdminTripleTap();
   }, { passive: true });
 }
 function triggerRomanticHeart(){
-
   const canvas = document.getElementById("heartCanvas");
   const ctx = canvas.getContext("2d");
   canvas.width = window.innerWidth;
@@ -1362,12 +1178,10 @@ function triggerRomanticHeart(){
   for(let t=0; t<Math.PI*2; t+=0.05){
   const x = 16*Math.pow(Math.sin(t),3);
   const y = 13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t);
-
     heartPoints.push({
       x: centerX + x*scale,
       y: centerY - y*scale
     });
-
   }
   heartPoints.forEach(p=>{
       particles.push({
@@ -1378,23 +1192,16 @@ function triggerRomanticHeart(){
       vx:0,
       vy:0
     });
-
   });
-
   function animate(){
-
     ctx.clearRect(0,0,canvas.width,canvas.height);
-
     particles.forEach(p=>{
-
       if(!snap){
         p.vx += (p.tx - p.x)*0.02;
         p.vy += (p.ty - p.y)*0.02;
-
       }else{
         p.vx += (Math.random()-0.5)*0.8;
         p.vy += (Math.random()-0.5)*0.8;
-
       }
       p.vx *= 0.92;
       p.vy *= 0.92;
@@ -1406,13 +1213,9 @@ function triggerRomanticHeart(){
       ctx.shadowColor = "#ff4da6";
       ctx.shadowBlur = 12;
       ctx.fill();
-
     });
-
     requestAnimationFrame(animate);
-
   }
-
   animate();
   setTimeout(()=>{
     snap = true;
@@ -1420,12 +1223,5 @@ function triggerRomanticHeart(){
   setTimeout(()=>{
     canvas.style.opacity = 0;
   },3000);
-
 }
-
-
-  /* ==========================
-     Finish DOMContentLoaded
-     ========================== */
-
-}); // end DOMContentLoaded
+}); 
